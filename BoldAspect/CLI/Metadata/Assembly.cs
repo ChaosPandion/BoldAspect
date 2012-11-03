@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace BoldAspect.CLI.Metadata
@@ -12,7 +14,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct AssemblyRecord : IMetadataRecord
+    struct AssemblyRecord
     {
         [ConstantColumn(typeof(AssemblyHashAlgorithm))]
         public AssemblyHashAlgorithm HashAlgId;
@@ -40,10 +42,15 @@ namespace BoldAspect.CLI.Metadata
 
         [StringHeapIndex]
         public uint Culture;
+    }
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
+    public interface IAssembly
+    {
+        AssemblyHashAlgorithm HashAlgorithm { get; set; }
+        Version Version { get; set; }
+        IList<byte> PublicKey { get; }
+        string Name { get; set; }
+        CultureInfo Culture { get; set; }
+        IList<IModule> Modules { get; }
     }
 }

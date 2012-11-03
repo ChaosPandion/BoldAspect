@@ -40,6 +40,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryReaderExtensions.cs" />
+    <Compile Include="CLI\CLIAssembly.cs" />
+    <Compile Include="CLI\CLIField.cs" />
+    <Compile Include="CLI\CLIMetadata.cs" />
+    <Compile Include="CLI\CLIMethod.cs" />
+    <Compile Include="CLI\CLIModule.cs" />
+    <Compile Include="CLI\CLIProperty.cs" />
+    <Compile Include="CLI\CLIType.cs" />
     <Compile Include="CLI\Metadata\Assembly.cs" />
     <Compile Include="CLI\Metadata\AssemblyOS.cs" />
     <Compile Include="CLI\Metadata\AssemblyProcessor.cs" />

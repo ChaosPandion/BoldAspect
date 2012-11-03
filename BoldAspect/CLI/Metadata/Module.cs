@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using BoldAspect.CLI.Metadata;
@@ -14,7 +15,7 @@ namespace BoldAspect.CLI.Metadata
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct ModuleRecord : IMetadataRecord
+    struct ModuleRecord
     {
         [ConstantColumn(typeof(ushort))]
         public ushort Generation;
@@ -30,34 +31,33 @@ namespace BoldAspect.CLI.Metadata
 
         [GuidHeapIndex]
         public uint EncBaseId;
+    }
 
-        public void Read(BinaryReader reader, TableStream stream)
+    public interface IModule
+    {
+        IAssembly Assembly { get; set; }
+        string Name { get; set; }
+        Guid Mvid { get; set; }
+    }
+
+    public class ModuleCLI : IModule
+    {
+        public IAssembly Assembly { get; set; }
+        public string Name { get; set; }
+        public Guid Mvid { get; set; }
+    }
+
+    public sealed class CliModule
+    {
+        public CliModule()
         {
-            reader.ReadUInt16();
-            if (stream.StringHeapIsWide)
-            {
-                Name = reader.ReadUInt32();
-            }
-            else
-            {
-                Name = reader.ReadUInt16();
-            }
-            if (stream.GuidHeapIsWide)
-            {
-                Mvid = reader.ReadUInt32();
-                EncId = reader.ReadUInt32();
-                EncBaseId = reader.ReadUInt32();
-            }
-            else
-            {
-                Mvid = reader.ReadUInt16();
-                EncId = reader.ReadUInt16();
-                EncBaseId = reader.ReadUInt16();
-            }
-            if (EncId != 0)
-                throw new MetadataException();
-            if (EncBaseId != 0)
-                throw new MetadataException();
+
         }
+
+        public int Generation { get; set; }
+        public string Name { get; set; }
+        public Guid Mvid { get; set; }
+        public Guid EncId { get; set; }
+        public Guid EncBaseId { get; set; }
     }
 }
