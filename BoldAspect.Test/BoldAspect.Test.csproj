@@ -45,14 +45,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BoldAspect.CLI\BoldAspect.CLI.csproj">
-      <Project>{b46776c7-13f2-4241-9865-5f86ec2db70d}</Project>
-      <Name>BoldAspect.CLI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BoldAspect.PE\BoldAspect.PE.csproj">
-      <Project>{932ea2d9-0faf-4e31-b9f2-a2c29eed57a7}</Project>
-      <Name>BoldAspect.PE</Name>
-    </ProjectReference>
     <ProjectReference Include="..\BoldAspect\BoldAspect.csproj">
       <Project>{b110e990-e666-41f0-8998-e55b0a3d9f6f}</Project>
       <Name>BoldAspect</Name>
