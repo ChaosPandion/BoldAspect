@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI.Metadata.Blobs
 {
-    class CustomModBlob
+    public sealed class CustomModBlob
     {
+        public readonly ElementType Mod;
+        public readonly TypeDefOrRefOrSpecEncodedBlob Token;
+
+        public CustomModBlob(ElementType mod, TypeDefOrRefOrSpecEncodedBlob token)
+        {
+            Mod = mod;
+            Token = token;
+        }
     }
 }

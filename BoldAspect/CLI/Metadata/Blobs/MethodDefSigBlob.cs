@@ -17,50 +17,20 @@ namespace BoldAspect.CLI.Metadata.Blobs
         ExplicitThis = 0x40
     }
 
-    sealed class MethodDefSigBlob
+    public sealed class MethodDefSigBlob
     {
         public readonly MethodDefSigFlags Flags;
         public readonly uint GenParamCount;
         public readonly uint ParamCount;
         public readonly RetTypeBlob RetType;
-        public readonly ParamBlob[] Params;
+        public readonly IReadOnlyCollection<ParamBlob> Params;
 
-        public MethodDefSigBlob(BlobHeap.Slice slice)
+        public MethodDefSigBlob(MethodDefSigFlags flags, uint genParamCount, uint paramCount, RetTypeBlob retType, IReadOnlyCollection<ParamBlob> @params)
         {
-            Flags = (MethodDefSigFlags)slice[0];
-            var pcIndex = 1;
-            if (Flags.HasFlag(MethodDefSigFlags.Generic))
-            {
-                var bg = slice[1];
-                if ((bg & 0xC0) == 0xC0)
-                {
-                    GenParamCount = (uint)(bg << 24) + (uint)(slice[2] << 16) + (uint)(slice[3] << 8) + slice[4];
-                    pcIndex = 5;
-                }
-                else if ((bg & 0x80) == 0x80)
-                {
-                    GenParamCount = (uint)(bg << 8) + slice[2];
-                    pcIndex = 3;
-                }
-                else
-                {
-                    GenParamCount = bg;
-                    pcIndex = 2;
-                }
-            }
-            var b = slice[pcIndex];
-            if ((b & 0xC0) == 0xC0)
-            {
-                ParamCount = (uint)(b << 24) + (uint)(slice[pcIndex + 1] << 16) + (uint)(slice[pcIndex + 2] << 8) + slice[pcIndex + 3];
-            }
-            else if ((b & 0x80) == 0x80)
-            {
-                ParamCount = (uint)(b << 8) + slice[pcIndex + 1];
-            }
-            else
-            {
-                ParamCount = b;
-            }
+            Flags = flags;
+            GenParamCount = genParamCount;
+            ParamCount = paramCount;
+            Params = @params;
         }
 
     }

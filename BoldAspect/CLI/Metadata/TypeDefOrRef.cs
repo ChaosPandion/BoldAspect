@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI.Metadata
 {
-    enum TypeDefOrRef : byte
+    public enum TypeDefOrRef : byte
     {
         TypeDef,
         TypeRef,

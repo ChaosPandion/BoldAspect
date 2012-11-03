@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI.Metadata.Blobs
 {
-    class TypeDefOrRefOrSpecEncodedBlob
+    public sealed class TypeDefOrRefOrSpecEncodedBlob
     {
+        public readonly TypeDefOrRef TypeDefOrRef;
+        public readonly uint Index;
+
+        public TypeDefOrRefOrSpecEncodedBlob(TypeDefOrRef typeDefOrRef, uint index)
+        {
+            TypeDefOrRef = typeDefOrRef;
+            Index = index;
+        }
     }
 }

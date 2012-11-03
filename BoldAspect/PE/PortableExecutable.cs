@@ -29,7 +29,6 @@ namespace BoldAspect.PE
         readonly UserStringHeap _userStringHeap;
         readonly GuidHeap _guidHeap;
         readonly BlobHeap _blobHeap;
-        readonly MethodEntry[] _methodEntries;
 
                 
         /// <summary>
@@ -154,35 +153,6 @@ namespace BoldAspect.PE
                                 }
                             }
                         }
-
-                        var methodDefTable = _tableStream.MethodDefTable;
-
-
-                        _methodEntries = new MethodEntry[methodDefTable.Count];
-                        for (int i = 0; i < _methodEntries.Length; i++)
-                        {
-                            var methodDef = methodDefTable[i];
-                            var name = _stringHeap.Get(methodDef.Name);
-                            if (methodDef.Signature > 0)
-                            {
-                                var blob = _blobHeap.Get(methodDef.Signature);
-                                var s = new MethodDefSigBlob(blob);
-                                //using (var ms1 = new MemoryStream(blob))
-                                //using (var r1 = new BinaryReader(ms1))
-                                //{
-                                //    var s = new MethodDefSigBlob(r1);
-                                //}
-                            }
-                            if (methodDef.RVA > 0)
-                            {
-                                var rva = (int)methodDef.RVA;
-                                var offset = FindRvaOffset(rva);
-                                ms.Seek(offset, SeekOrigin.Begin);
-                                _methodEntries[i] = new MethodEntry(rva, r);
-                            }
-                        }
-
-
                     }
                 }
             }
