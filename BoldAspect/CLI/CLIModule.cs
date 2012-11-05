@@ -26,7 +26,9 @@ namespace BoldAspect.CLI
             }
         }
     }
-    class CLIModuleReference
+
+    public sealed class CLIModuleReference
     {
+
     }
 }

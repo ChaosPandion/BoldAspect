@@ -13,11 +13,6 @@ namespace BoldAspect.CLI
         private readonly List<CLIModule> _modules = new List<CLIModule>();
 
 
-        public CLIModule.Builder CreateModuleBuilder()
-        {
-            return new CLIModule.Builder(this);
-        }
-
         public CLIModule FindModule(string name)
         {
             return null;
@@ -37,11 +32,6 @@ namespace BoldAspect.CLI
             return null;
         }
 
-        public CLIAssembly.Builder CreateAssemblyBuilder()
-        {
-            return new CLIAssembly.Builder(this);
-        }
-
         public CLIAssembly FindAssembly(string name)
         {
             return null;
@@ -59,16 +49,6 @@ namespace BoldAspect.CLI
             if (!stream.CanRead)
                 throw new ArithmeticException();
             return null;
-        }
-
-        internal void Register(CLIAssembly assembly)
-        {
-
-        }
-
-        internal void Register(CLIModule module)
-        {
-
         }
     }
 }

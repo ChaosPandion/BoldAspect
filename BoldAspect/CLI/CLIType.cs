@@ -6,7 +6,22 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-    class CLIType
+    public sealed class CLIType
     {
+        public CLIMetadata Metadata { get; private set; }
+        public string Name { get; set; }
+        public string NameSpace { get; set; }
+    }
+
+    public sealed class CLITypeRef
+    {
+        public CLIMetadata Metadata { get; private set; }
+        public string Name { get; set; }
+        public string NameSpace { get; set; }
+    }
+
+    public sealed class CLIExportedType
+    {
+        public CLIMetadata Metadata { get; private set; }
     }
 }

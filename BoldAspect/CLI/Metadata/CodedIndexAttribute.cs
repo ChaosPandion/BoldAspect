@@ -9,10 +9,10 @@ namespace BoldAspect.CLI.Metadata
 {
     sealed class CodedIndexAttribute : ColumnAttribute
     {
-        private readonly CLIType _enumType;
+        private readonly Type _enumType;
         private readonly int _tagWidth;
 
-        public CodedIndexAttribute(CLIType enumType)
+        public CodedIndexAttribute(Type enumType)
         {
             _enumType = enumType;
             var y = (long)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();

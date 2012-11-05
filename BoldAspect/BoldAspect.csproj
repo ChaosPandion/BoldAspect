@@ -58,8 +58,6 @@
     <Compile Include="CLI\Metadata\Blobs\MethodSpecBlob.cs" />
     <Compile Include="CLI\Metadata\Blobs\TypeSpecBlob.cs" />
     <Compile Include="CLI\Metadata\ClassLayout.cs" />
-    <Compile Include="CLI\Metadata\AssemblyFlags.cs" />
-    <Compile Include="CLI\Metadata\AssemblyHashAlgorithm.cs" />
     <Compile Include="CLI\Metadata\ElementType.cs" />
     <Compile Include="CLI\Metadata\EventAttributes.cs" />
     <Compile Include="CLI\Metadata\FileAttributes.cs" />

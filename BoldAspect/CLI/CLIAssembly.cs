@@ -26,95 +26,57 @@ namespace BoldAspect.CLI
 
     public sealed class CLIAssembly
     {
-        public CLIMetadata Owner { get; private set; }
-        public AssemblyFlags Flags { get; private set; }
-        public string Name { get; private set; }
-        public Version Version { get; private set; }
-        public CultureInfo Culture { get; private set; }
-        public AssemblyHashAlgorithm HashAlgorithm { get; private set; }
-        public ReadOnlyCollection<byte> PublicKey { get; private set; }
-        public ReadOnlyCollection<CLIModule> Modules { get; private set; }
-        public CLIModule ManifestModule { get; private set; }
-
-        private CLIAssembly(
-            CLIMetadata owner,
-            AssemblyFlags flags,
-            string name,
-            Version version,
-            CultureInfo culture,
-            AssemblyHashAlgorithm hashAlgorithm,
-            ReadOnlyCollection<byte> publicKey,
-            ReadOnlyCollection<CLIModule> modules,
-            CLIModule manifestModule)
+        public CLIAssembly(CLIMetadata metadata)
         {
-            Owner = owner;
-            Flags = flags;
-            Name = name;
-            Version = version;
-            Culture = culture;
-            HashAlgorithm = hashAlgorithm;
-            PublicKey = publicKey;
-            Modules = modules;
-            ManifestModule = manifestModule;
+            Metadata = metadata;
+            PublicKey = new List<byte>();
+            ModuleReferences = new List<CLIModuleReference>();
+            AssemblyReferences = new List<CLIAssemblyReference>();
         }
 
-        public sealed class Builder
-        {
-            private CLIAssembly _assembly;
+        public CLIMetadata Metadata { get; private set; }
 
-            internal Builder(CLIMetadata owner)
-            {
-                _assembly = new CLIAssembly(
+        public string Name { get; set; }
 
-            }
+        public AssemblyFlags Flags { get; set; }
 
-            public Builder WithName(string name)
-            {
-                _name = name;
-                return this;
-            }
+        public Version Version { get; set; }
 
-            public Builder WithVersion(Version version)
-            {
-                _version = version;
-                return this;
-            }
+        public CultureInfo Culture { get; set; }
 
-            public Builder WithCulture(CultureInfo culture)
-            {
-                _culture = culture;
-                return this;
-            }
+        public AssemblyHashAlgorithm HashAlgorithm { get; set; }
 
-            public Builder WithFlags(AssemblyFlags flags)
-            {
-                _flags = flags;
-                return this;
-            }
+        public IList<byte> PublicKey { get; private set; }
 
-            public Builder WithHashAlgorithm(AssemblyHashAlgorithm hashAlgorithm)
-            {
-                _hashAlgorithm = hashAlgorithm;
-                return this;
-            }
+        public CLIModule ManifestModule { get; set; }
 
-            public Builder WithModule(CLIModule module)
-            {
-                _modules.Add(module);
-                return this;
-            }
+        public IList<CLIModuleReference> ModuleReferences { get; private set; }
 
-            public Builder WithManifestModule(CLIModule manifestModule)
-            {
-                _manifestModule = manifestModule;
-                _modules.Add(manifestModule);
-                return this;
-            }
-        }
+        public IList<CLIAssemblyReference> AssemblyReferences { get; private set; }
     }
 
-    class CLIAssemblyReference
+    public sealed class CLIAssemblyReference
     {
+        public CLIAssemblyReference(CLIMetadata metadata)
+        {
+            Metadata = metadata;
+            PublicKeyOrToken = new List<byte>();
+            HashValue = new List<byte>();
+        }
+
+        public CLIMetadata Metadata { get; private set; }
+
+        public string Name { get; set; }
+
+        public AssemblyFlags Flags { get; set; }
+
+        public Version Version { get; set; }
+
+        public CultureInfo Culture { get; set; }
+
+        public IList<byte> PublicKeyOrToken { get; private set; }
+
+        public IList<byte> HashValue { get; private set; }
 
     }
 }

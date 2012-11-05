@@ -43,14 +43,4 @@ namespace BoldAspect.CLI.Metadata
         [StringHeapIndex]
         public uint Culture;
     }
-
-    public interface IAssembly
-    {
-        AssemblyHashAlgorithm HashAlgorithm { get; set; }
-        Version Version { get; set; }
-        IList<byte> PublicKey { get; }
-        string Name { get; set; }
-        CultureInfo Culture { get; set; }
-        IList<IModule> Modules { get; }
-    }
 }

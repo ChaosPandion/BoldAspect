@@ -12,8 +12,7 @@ namespace BoldAspect.Test
     {
         static void Main(string[] args)
         {
-            const string fileName = @"C:\Users\Matthew\Projects\HigherAspects1\HigherAspects\bin\Debug\ICSharpCode.NRefactory.CSharp.dll";
-//@"C:\Users\Matthew\Projects\MData\MData\bin\Debug\MData.dll";
+            const string fileName = @"";
             var pe = new PortableExecutable(fileName);
         }
     }
