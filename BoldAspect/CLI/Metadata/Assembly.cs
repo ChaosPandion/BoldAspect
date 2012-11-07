@@ -43,4 +43,41 @@ namespace BoldAspect.CLI.Metadata
         [StringHeapIndex]
         public uint Culture;
     }
+
+    class AssemblyOSTable : Table<AssemblyOSRecord>
+    {
+        public AssemblyOSTable()
+            : base(TableID.AssemblyOS)
+        {
+
+        }
+    }
+
+    struct AssemblyOSRecord
+    {
+        [ConstantColumn(typeof(uint))]
+        public uint OSPlatformID;
+
+        [ConstantColumn(typeof(uint))]
+        public uint OSMajorVersion;
+
+        [ConstantColumn(typeof(uint))]
+        public uint OSMinorVersion;
+    }
+
+
+    class AssemblyProcessorTable : Table<AssemblyProcessorRecord>
+    {
+        public AssemblyProcessorTable()
+            : base(TableID.AssemblyProcessor)
+        {
+
+        }
+    }
+
+    struct AssemblyProcessorRecord
+    {
+        [ConstantColumn(typeof(uint))]
+        public uint Processor;
+    }
 }

@@ -13,7 +13,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct MemberRefRecord : IMetadataRecord
+    struct MemberRefRecord 
     {
         [CodedIndex(typeof(MemberRefParent))]
         public uint Class;
@@ -24,9 +24,5 @@ namespace BoldAspect.CLI.Metadata
         [BlobHeapIndex]
         public uint Signature;
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

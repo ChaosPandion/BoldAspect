@@ -9,9 +9,9 @@ namespace BoldAspect.CLI.Metadata
 {
     sealed class BlobHeapIndexAttribute : ColumnAttribute
     {
-        public override ulong GetIndex(BinaryReader reader, TableStream stream)
+        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
         {
-            if (stream.BlobHeapIsWide)
+            if (stream.HeapSizeFlags.HasFlag(HeapSizeFlags.BlobHeapIsWide))
             {
                 return reader.ReadUInt32();
             }

@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ExportedTypeRecord : IMetadataRecord
+    struct ExportedTypeRecord
     {
         [ConstantColumn(typeof(uint))]
         public uint Flags;
@@ -28,11 +28,5 @@ namespace BoldAspect.CLI.Metadata
 
         [CodedIndex(typeof(Implementation))]
         public uint Implementation;
-
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

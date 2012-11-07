@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct FieldLayoutRecord : IMetadataRecord
+    struct FieldLayoutRecord
     {
         [ConstantColumn(typeof(uint))]
         public uint Offset;
 
         [SimpleIndex(TableID.Field)]
         public uint Field;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

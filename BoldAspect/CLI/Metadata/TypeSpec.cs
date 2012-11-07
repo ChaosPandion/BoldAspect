@@ -12,14 +12,9 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct TypeSpecRecord : IMetadataRecord
+    struct TypeSpecRecord
     {
         [BlobHeapIndex]
         public uint Signature;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

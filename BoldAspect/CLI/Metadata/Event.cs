@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct EventRecord : IMetadataRecord
+    struct EventRecord
     {
         [ConstantColumn(typeof(ushort))]
         public ushort EventFlags;
@@ -22,10 +22,5 @@ namespace BoldAspect.CLI.Metadata
 
         [CodedIndex(typeof(TypeDefOrRef))]
         public uint EventType;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

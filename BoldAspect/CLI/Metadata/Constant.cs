@@ -13,7 +13,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ConstantRecord : IMetadataRecord
+    struct ConstantRecord 
     {
         [ConstantColumn(typeof(ushort))]
         public ushort Type;
@@ -23,10 +23,5 @@ namespace BoldAspect.CLI.Metadata
 
         [BlobHeapIndex]
         public uint Value;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

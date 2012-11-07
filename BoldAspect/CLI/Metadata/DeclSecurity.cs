@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct DeclSecurityRecord : IMetadataRecord
+    struct DeclSecurityRecord 
     {
         [ConstantColumn(typeof(ushort))]
         public ushort Action;
@@ -23,9 +23,6 @@ namespace BoldAspect.CLI.Metadata
         [BlobHeapIndex]
         public uint PermissionSet;
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
+        
     }
 }

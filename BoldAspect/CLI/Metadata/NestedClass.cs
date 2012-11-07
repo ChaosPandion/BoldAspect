@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct NestedClassRecord : IMetadataRecord
+    struct NestedClassRecord
     {
         [SimpleIndex(TableID.TypeDef)]
         public uint NestedClass;
 
         [SimpleIndex(TableID.TypeDef)]
         public uint EnclosingClass;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

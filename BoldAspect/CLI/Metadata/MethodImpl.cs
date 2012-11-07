@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct MethodImplRecord : IMetadataRecord
+    struct MethodImplRecord 
     {
         [SimpleIndex(TableID.TypeDef)]
         public uint Class;
@@ -22,10 +22,5 @@ namespace BoldAspect.CLI.Metadata
 
         [CodedIndex(typeof(MethodDefOrRef))]
         public uint MethodDeclaration;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

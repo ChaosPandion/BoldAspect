@@ -13,17 +13,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct FieldMarshalRecord : IMetadataRecord
+    struct FieldMarshalRecord 
     {
         [CodedIndex(typeof(HasFieldMarshal))] 
         public uint Parent;
 
         [BlobHeapIndex] 
         public uint NativeType;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

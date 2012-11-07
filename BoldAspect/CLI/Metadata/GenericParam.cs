@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct GenericParamRecord : IMetadataRecord
+    struct GenericParamRecord
     {
         [ConstantColumn(typeof(ushort))]
         public ushort Number;
@@ -25,10 +25,5 @@ namespace BoldAspect.CLI.Metadata
 
         [StringHeapIndex]
         public uint Name;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

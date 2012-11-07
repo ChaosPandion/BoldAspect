@@ -12,14 +12,9 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ModuleRefRecord : IMetadataRecord
+    struct ModuleRefRecord
     {
         [StringHeapIndex]
         public uint Name;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

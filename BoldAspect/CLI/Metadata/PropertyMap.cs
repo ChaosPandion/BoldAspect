@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct PropertyMapRecord : IMetadataRecord
+    struct PropertyMapRecord
     {
         [SimpleIndex(TableID.TypeDef)]
         public uint Parent;
 
         [SimpleIndex(TableID.Property)]
         public uint PropertyList;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

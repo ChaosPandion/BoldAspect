@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct FileRecord : IMetadataRecord
+    struct FileRecord
     {
         [ConstantColumn(typeof(uint))]
         public uint Flags;
@@ -22,10 +22,5 @@ namespace BoldAspect.CLI.Metadata
 
         [BlobHeapIndex]
         public uint HashValue;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

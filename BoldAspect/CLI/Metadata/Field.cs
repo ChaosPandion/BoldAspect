@@ -14,7 +14,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct FieldRecord : IMetadataRecord
+    struct FieldRecord 
     {
         [ConstantColumn(typeof(FieldAttributes))]
         public FieldAttributes Flags;
@@ -24,10 +24,5 @@ namespace BoldAspect.CLI.Metadata
 
         [BlobHeapIndex]
         public uint Signature;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

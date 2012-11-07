@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI.Metadata
 {
-    class UserStringHeap : List<string>
+    [Flags]
+    public enum HeapSizeFlags : byte
     {
+        BlobHeapIsWide = 0x02,
+        GuidHeapIsWide = 0x04,
+        StringHeapIsWide = 0x08,
     }
 }

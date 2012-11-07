@@ -22,7 +22,7 @@ namespace BoldAspect.CLI.Metadata
 
  
 
-    struct TypeDefRecord : IMetadataRecord
+    struct TypeDefRecord 
     {
         [ConstantColumn(typeof(TypeAttributes))]
         public TypeAttributes Flags;
@@ -41,24 +41,5 @@ namespace BoldAspect.CLI.Metadata
 
         [SimpleIndex(TableID.MethodDef)]
         public uint MethodList;
-
-        public void Read(BinaryReader reader, TableStream stream)
-        {
-            Flags = (TypeAttributes)reader.ReadUInt32();
-            if (stream.StringHeapIsWide)
-            {
-                TypeName = reader.ReadUInt32();
-                TypeNameSpace = reader.ReadUInt32();
-            }
-            else
-            {
-                TypeName = reader.ReadUInt16();
-                TypeNameSpace = reader.ReadUInt16();
-            }
-            var c = stream.GetRowCount(TableID.TypeRef);
-            Extends = reader.ReadUInt16();
-            FieldList = reader.ReadUInt16();
-            MethodList = reader.ReadUInt16();
-        }
     }
 }

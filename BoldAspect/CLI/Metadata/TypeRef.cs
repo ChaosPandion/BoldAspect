@@ -11,7 +11,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct TypeRefRecord : IMetadataRecord
+    struct TypeRefRecord
     {
         [CodedIndex(typeof(ResolutionScope))]
         public uint ResolutionScope;
@@ -21,10 +21,5 @@ namespace BoldAspect.CLI.Metadata
 
         [StringHeapIndex]
         public uint TypeNameSpace;
-
-        public void Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

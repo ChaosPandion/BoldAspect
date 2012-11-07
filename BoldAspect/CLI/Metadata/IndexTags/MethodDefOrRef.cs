@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI
+namespace BoldAspect.CLI.Metadata
 {
-    class CLIProperty
+    enum MethodDefOrRef : byte
     {
-
+        MethodDef,
+        MemberRef
     }
 }

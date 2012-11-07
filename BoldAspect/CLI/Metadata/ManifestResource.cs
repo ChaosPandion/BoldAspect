@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ManifestResourceRecord : IMetadataRecord
+    struct ManifestResourceRecord 
     {
         [ConstantColumn(typeof(uint))]
         public uint Offset;
@@ -27,9 +27,7 @@ namespace BoldAspect.CLI.Metadata
         public uint Implementation;
 
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
+        
+        
     }
 }

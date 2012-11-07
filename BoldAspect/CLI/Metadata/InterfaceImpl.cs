@@ -12,18 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct InterfaceImplRecord : IMetadataRecord
+    struct InterfaceImplRecord 
     {
         [SimpleIndex(TableID.TypeDef)]
         public uint Class;
 
         [CodedIndex(typeof(TypeDefOrRef))]
         public uint Interface;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-            Class = reader.ReadUInt16();
-            Interface = reader.ReadUInt16();
-        }
     }
 }

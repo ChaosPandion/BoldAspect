@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ClassLayoutRecord : IMetadataRecord
+    struct ClassLayoutRecord
     {
         [ConstantColumn(typeof(ushort))]
         public ushort PackingSize;
@@ -22,10 +22,5 @@ namespace BoldAspect.CLI.Metadata
 
         [SimpleIndex(TableID.TypeDef)]
         public uint Parent;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

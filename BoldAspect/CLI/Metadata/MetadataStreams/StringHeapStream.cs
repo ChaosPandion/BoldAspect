@@ -5,27 +5,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI.Metadata.MetadataStreams
 {
-    public sealed class StringHeap
+    public sealed class StringHeapStream : MetadataStream
     {
-        private readonly byte[] _data;
-
-        public StringHeap(byte[] data)
+        public StringHeapStream(byte[] data)
+            : base(data)
         {
-            _data = data;
+
         }
 
         public string Get(uint index)
         {
             var end = index;
-            while (end < _data.Length)
+            while (end < Data.Length)
             {
-                var b = _data[end++];
+                var b = Data[end++];
                 if (b == 0)
                     break;
             }
-            return Encoding.UTF8.GetString(_data, (int)index, (int)end - (int)index - 1);
+            return Encoding.UTF8.GetString(Data, (int)index, (int)end - (int)index - 1);
         }
     }
 }

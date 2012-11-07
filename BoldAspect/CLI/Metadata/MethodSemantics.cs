@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct MethodSemanticsRecord : IMetadataRecord
+    struct MethodSemanticsRecord 
     {
         [ConstantColumn(typeof(MethodSemanticsAttributes))]
         public MethodSemanticsAttributes Semantics;
@@ -22,10 +22,5 @@ namespace BoldAspect.CLI.Metadata
 
         [CodedIndex(typeof(HasSemantics))]
         public uint Association;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

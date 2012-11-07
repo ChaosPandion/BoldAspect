@@ -22,7 +22,12 @@ namespace BoldAspect.CLI.Metadata
             }
         }
 
-        public override ulong GetIndex(BinaryReader reader, TableStream stream)
+        public Type Type
+        {
+            get { return _type; }
+        }
+
+        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
         {
             var size = Marshal.SizeOf(_type);
             switch (size)

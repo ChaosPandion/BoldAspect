@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI
 {
     [Flags]
     public enum PropertyAttributes : ushort

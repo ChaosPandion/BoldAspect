@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using BoldAspect.CLI.Metadata;
 using BoldAspect.CLI.Metadata.Blobs;
+using BoldAspect.CLI.Metadata.MetadataStreams;
 
 namespace BoldAspect.PE
 {
@@ -23,12 +24,13 @@ namespace BoldAspect.PE
         readonly SectionHeader[] _sectionHeaders;
         readonly CliHeader _cliHeader;
         readonly MetadataRoot _metadataRoot;
-        readonly MetadataStreamHeader[] _metadataStreamHeaders;
-        readonly TableStream _tableStream;
-        readonly StringHeap _stringHeap;
-        readonly UserStringHeap _userStringHeap;
-        readonly GuidHeap _guidHeap;
-        readonly BlobHeap _blobHeap;
+        //readonly MetadataRoot _metadataRoot;
+        //readonly MetadataStreamHeader[] _metadataStreamHeaders;
+        //readonly TableStream _tableStream;
+        //readonly StringHeap _stringHeap;
+        //readonly UserStringHeap _userStringHeap;
+        //readonly GuidHeap _guidHeap;
+        //readonly BlobHeap _blobHeap;
 
                 
         /// <summary>
@@ -99,61 +101,9 @@ namespace BoldAspect.PE
                     _cliHeader = (CliHeader)Marshal.PtrToStructure(ptr, typeof(CliHeader));
 
                     var metaDataRootOffset = FindRvaOffset((int)_cliHeader.MetadataRVA);
-                    using (var ms = new MemoryStream(data))
-                    using (var r = new BinaryReader(ms, Encoding.Default, true))
-                    {
-                        ms.Seek(metaDataRootOffset, SeekOrigin.Begin);
-                        _metadataRoot.Read(r);
-                        _metadataStreamHeaders = new MetadataStreamHeader[_metadataRoot.Streams];
-                        for (int i = 0; i < _metadataStreamHeaders.Length; i++)
-                        {
-                            _metadataStreamHeaders[i].Read(r);
-                        }
-
-                        foreach (var sh in _metadataStreamHeaders)
-                        {
-                            ms.Seek(metaDataRootOffset, SeekOrigin.Begin);
-                            if (sh.Name == "#~")
-                            {
-                                _tableStream = new TableStream();
-                                ms.Seek(sh.Offset, SeekOrigin.Current);
-                                _tableStream.Read(r, sh);
-                            }
-                            else if (sh.Name == "#Strings")
-                            {
-                                ms.Seek(sh.Offset, SeekOrigin.Current);
-                                _stringHeap = new StringHeap(r.ReadBytes((int)sh.Size));
-                            }
-                            else if (sh.Name == "#US")
-                            {
-                                _userStringHeap = new UserStringHeap();
-                                ms.Seek(sh.Offset, SeekOrigin.Current);
-                                var limit = ms.Position + sh.Size;
-                                while (ms.Position < limit)
-                                {
-                                    var size = (int)r.ReadCompressedUInt32();
-                                    var d = r.ReadBytes(size);
-                                    _userStringHeap.Add(Encoding.Unicode.GetString(d, 0, Math.Max(d.Length - 1, 0)));
-                                }
-                            }
-                            else if (sh.Name == "#Blob")
-                            {
-                                ms.Seek(sh.Offset, SeekOrigin.Current);
-                                _blobHeap = new BlobHeap(r.ReadBytes((int)sh.Size));
-                            }
-                            else if (sh.Name == "#GUID")
-                            {
-                                _guidHeap = new GuidHeap();
-                                ms.Seek(sh.Offset, SeekOrigin.Current);
-                                var limit = ms.Position + sh.Size;
-                                while (ms.Position < limit)
-                                {
-                                    var d = r.ReadBytes(16);
-                                    _guidHeap.Add(new Guid(d));
-                                }
-                            }
-                        }
-                    }
+                    using (var ms = new MemoryStream(data, metaDataRootOffset, (int)_cliHeader.MetadataSize, false, false))
+                    using (var r = new BinaryReader(ms))
+                        _metadataRoot = new MetadataRoot(r);
                 }
             }
             finally

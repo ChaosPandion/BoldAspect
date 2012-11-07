@@ -15,6 +15,6 @@ namespace BoldAspect.CLI.Metadata
 
         }
 
-        public abstract ulong GetIndex(BinaryReader reader, TableStream stream);
+        public abstract ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream);
     }
 }

@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct MethodSpecRecord : IMetadataRecord
+    struct MethodSpecRecord
     {
         [CodedIndex(typeof(MethodDefOrRef))]
         public uint Method;
 
         [BlobHeapIndex]
         public uint Instantiation;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

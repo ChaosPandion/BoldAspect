@@ -13,7 +13,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct CustomAttributeRecord : IMetadataRecord
+    struct CustomAttributeRecord
     {
         [CodedIndex(typeof(HasCustomAttribute))]
         public uint Parent;
@@ -23,10 +23,5 @@ namespace BoldAspect.CLI.Metadata
 
         [BlobHeapIndex]
         public uint Value;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

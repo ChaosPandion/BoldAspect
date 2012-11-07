@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct EventMapRecord : IMetadataRecord
+    struct EventMapRecord
     {
         [SimpleIndex(TableID.TypeDef)]
         public uint Parent;
 
         [SimpleIndex(TableID.Event)]
         public uint EventList;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

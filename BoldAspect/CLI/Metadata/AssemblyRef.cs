@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct AssemblyRefRecord : IMetadataRecord
+    struct AssemblyRefRecord
     {
         [ConstantColumn(typeof(ushort))]
         public ushort MajorVersion;
@@ -40,10 +40,47 @@ namespace BoldAspect.CLI.Metadata
 
         [BlobHeapIndex]
         public uint HashValue;
+    }
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
+    class AssemblyRefOSTable : Table<AssemblyRefOSRecord>
+    {
+        public AssemblyRefOSTable()
+            : base(TableID.AssemblyRefOS)
         {
 
         }
+    }
+
+    struct AssemblyRefOSRecord
+    {
+        [ConstantColumn(typeof(uint))]
+        public uint OSPlatformID;
+
+        [ConstantColumn(typeof(uint))]
+        public uint OSMajorVersion;
+
+        [ConstantColumn(typeof(uint))]
+        public uint OSMinorVersion;
+
+        [SimpleIndex(TableID.AssemblyRef)]
+        public uint AssemblyRef;
+    }
+
+    class AssemblyRefProcessorTable : Table<AssemblyRefProcessorRecord>
+    {
+        public AssemblyRefProcessorTable()
+            : base(TableID.AssemblyRefProcessor)
+        {
+
+        }
+    }
+
+    struct AssemblyRefProcessorRecord
+    {
+        [ConstantColumn(typeof(uint))]
+        public uint Processor;
+
+        [SimpleIndex(TableID.AssemblyRef)]
+        public uint AssemblyRef;
     }
 }

@@ -12,17 +12,12 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct FieldRVARecord : IMetadataRecord
+    struct FieldRVARecord
     {
         [ConstantColumn(typeof(uint))]
         public uint RVA;
 
         [SimpleIndex(TableID.Field)]
         public uint Field;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }

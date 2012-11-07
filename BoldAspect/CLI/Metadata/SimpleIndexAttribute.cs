@@ -16,7 +16,12 @@ namespace BoldAspect.CLI.Metadata
             _tableID = tableID;
         }
 
-        public override ulong GetIndex(BinaryReader reader, TableStream stream)
+        public TableID TableID
+        {
+            get { return _tableID; }
+        }
+
+        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
         {
             var c = stream.GetRowCount(_tableID);
             if (c < Math.Pow(2, 16))

@@ -20,8 +20,14 @@ namespace BoldAspect.CLI.Metadata
             _tagWidth = (int)Math.Ceiling(x);
         }
 
-        public override ulong GetIndex(BinaryReader reader, TableStream stream)
+        public Type EnumType
         {
+            get { return _enumType; }
+        }
+
+        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
+        {
+            return 0;
             var val = reader.ReadUInt16();
             var tag = (int)(val & _tagWidth);
             var tb = (TableID)Enum.Parse(typeof(TableID), Enum.GetName(_enumType, tag));

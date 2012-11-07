@@ -9,9 +9,9 @@ namespace BoldAspect.CLI.Metadata
 {
     sealed class StringHeapIndexAttribute : ColumnAttribute
     {
-        public override ulong GetIndex(BinaryReader reader, TableStream stream)
+        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
         {
-            if (stream.StringHeapIsWide)
+            if (stream.HeapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide))
             {
                 return reader.ReadUInt32();
             }

@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct GenericParamConstraintRecord : IMetadataRecord
+    struct GenericParamConstraintRecord 
     {
         [SimpleIndex(TableID.GenericParam)]
         public uint Owner;
@@ -20,9 +20,6 @@ namespace BoldAspect.CLI.Metadata
         [CodedIndex(typeof(TypeDefOrRef))]
         public uint Constraint;
 
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
+        
     }
 }

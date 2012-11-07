@@ -12,7 +12,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct ImplMapRecord : IMetadataRecord
+    struct ImplMapRecord
     {
         [ConstantColumn(typeof(PInvokeAttributes))]
         public PInvokeAttributes MappingFlags;
@@ -25,10 +25,5 @@ namespace BoldAspect.CLI.Metadata
 
         [SimpleIndex(TableID.ModuleRef)]
         public uint ImportScope;
-
-        void IMetadataRecord.Read(BinaryReader reader, TableStream stream)
-        {
-
-        }
     }
 }
