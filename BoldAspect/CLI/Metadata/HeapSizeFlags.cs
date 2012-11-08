@@ -9,8 +9,8 @@ namespace BoldAspect.CLI.Metadata
     [Flags]
     public enum HeapSizeFlags : byte
     {
-        BlobHeapIsWide = 0x02,
-        GuidHeapIsWide = 0x04,
-        StringHeapIsWide = 0x08,
+        StringHeapIsWide = 0x01,
+        GuidHeapIsWide = 0x02,
+        BlobHeapIsWide = 0x04,
     }
 }

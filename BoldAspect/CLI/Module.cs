@@ -5,31 +5,22 @@ using BoldAspect.CLI.Metadata;
 
 namespace BoldAspect.CLI.Metadata
 {
-    class ModuleTable : Table<ModuleRecord>
+    public interface IModule
     {
-        public ModuleTable()
-            : base(TableID.Module)
-        {
-
-        }
+        string Name { get; set; }
+        Guid Guid { get; set; }
+        IAssembly Assembly { get; set; }
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct ModuleRecord
+    public sealed class CLIModule : IModule
     {
-        [ConstantColumn(typeof(ushort))]
-        public ushort Generation;
+        public string Name { get; set; }
+        public Guid Guid { get; set; }
+        public IAssembly Assembly { get; set; }
 
-        [StringHeapIndex]
-        public uint Name;
-
-        [GuidHeapIndex]
-        public uint Mvid;
-
-        [GuidHeapIndex]
-        public uint EncId;
-
-        [GuidHeapIndex]
-        public uint EncBaseId;
+        public override string ToString()
+        {
+            return Name ?? "";
+        }
     }
 }

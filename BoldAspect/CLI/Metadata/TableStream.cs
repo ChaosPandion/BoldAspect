@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,59 +13,23 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
 {
     public sealed class TableStream : MetadataStream
     {
-        readonly uint _reserved1;
-        readonly byte _majorVersion;
-        readonly byte _minorVersion;
+        public readonly uint _reserved1;
+        public readonly byte _majorVersion;
+        public readonly byte _minorVersion;
         public readonly HeapSizeFlags HeapSizeFlags;
-        readonly byte _reserved2;
-        readonly TableFlags _valid;
-        readonly TableFlags _sorted;
+        public readonly byte _reserved2;
+        public readonly TableFlags _valid;
+        public readonly TableFlags _sorted;
         public readonly uint[] Rows;
-        private readonly Dictionary<TableID, List<byte[]>> _tableMap = new Dictionary<TableID, List<byte[]>>();
-        //readonly ModuleTable ModuleTable = new ModuleTable();
-        //readonly TypeRefTable TypeRefTable = new TypeRefTable();
-        //readonly TypeDefTable TypeDefTable = new TypeDefTable();
-        //readonly FieldTable FieldTable = new FieldTable();
-        //readonly MethodDefTable MethodDefTable = new MethodDefTable();
-        //readonly ParamTable ParamTable = new ParamTable();
-        //readonly InterfaceImplTable InterfaceImplTable = new InterfaceImplTable();
-        //readonly MemberRefTable MemberRefTable = new MemberRefTable();
-        //readonly ConstantTable ConstantTable = new ConstantTable();
-        //readonly CustomAttributeTable CustomAttributeTable = new CustomAttributeTable();
-        //readonly FieldMarshalTable FieldMarshalTable = new FieldMarshalTable();
-        //readonly DeclSecurityTable DeclSecurityTable = new DeclSecurityTable();
-        //readonly ClassLayoutTable ClassLayoutTable = new ClassLayoutTable();
-        //readonly FieldLayoutTable FieldLayoutTable = new FieldLayoutTable();
-        //readonly StandAloneSigTable StandAloneSigTable = new StandAloneSigTable();
-        //readonly EventMapTable EventMapTable = new EventMapTable();
-        //readonly EventTable EventTable = new EventTable();
-        //readonly PropertyMapTable PropertyMapTable = new PropertyMapTable();
-        //readonly PropertyTable PropertyTable = new PropertyTable();
-        //readonly MethodSemanticsTable MethodSemanticsTable = new MethodSemanticsTable();
-        //readonly MethodImplTable MethodImplTable = new MethodImplTable();
-        //readonly ModuleRefTable ModuleRefTable = new ModuleRefTable();
-        //readonly TypeSpecTable TypeSpecTable = new TypeSpecTable();
-        //readonly ImplMapTable ImplMapTable = new ImplMapTable();
-        //readonly FieldRVATable FieldRVATable = new FieldRVATable();
-        //readonly AssemblyTable AssemblyTable = new AssemblyTable();
-        //readonly AssemblyProcessorTable AssemblyProcessorTable = new AssemblyProcessorTable();
-        //readonly AssemblyOSTable AssemblyOSTable = new AssemblyOSTable();
-        //readonly AssemblyRefTable AssemblyRefTable = new AssemblyRefTable();
-        //readonly AssemblyRefProcessorTable AssemblyRefProcessorTable = new AssemblyRefProcessorTable();
-        //readonly AssemblyRefOSTable AssemblyRefOSTable = new AssemblyRefOSTable();
-        //readonly FileTable FileTable = new FileTable();
-        //readonly ExportedTypeTable ExportedTypeTable = new ExportedTypeTable();
-        //readonly ManifestResourceTable ManifestResourceTable = new ManifestResourceTable();
-        //readonly NestedClassTable NestedClassTable = new NestedClassTable();
-        //readonly GenericParamTable GenericParamTable = new GenericParamTable();
-        //readonly MethodSpecTable MethodSpecTable = new MethodSpecTable();
-        //readonly GenericParamConstraintTable GenericParamConstraintTable = new GenericParamConstraintTable();
+        public readonly Dictionary<TableID, List<byte[]>> _tableMap = new Dictionary<TableID, List<byte[]>>();
 
-        private sealed class TableSchema
+        public sealed class TableSchema
         {
             public TableID TableID;
             public int RowCount;
-            public int ByteWidth;
+            public int RowWidth;
+            public int Offset;
+            public int ByteLength;
             public object[] Columns;
 
             public TableSchema(TableID tableID, params object[] columns)
@@ -72,8 +37,13 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 TableID = tableID;
                 Columns = columns;
             }
+
+            public override string ToString()
+            {
+                return string.Format("TableID={0};RowCount={1};RowWidth={2}", TableID, RowCount, RowWidth);
+            }
         }
-        private sealed class CodedIndex
+        public sealed class CodedIndex
         {
             public Type EnumType;
             public int TagWidth;
@@ -83,8 +53,9 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             public CodedIndex(Type enumType, TableID[] tables)
             {
                 EnumType = enumType;
-                var y = (long)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();
-                var x = Math.Log((y / 2) + y) / Math.Log(2);
+                var y = (double)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();
+                var c = y / 2.0;
+                var x = Math.Log(c + y) / Math.Log(2);
                 TagWidth = (int)Math.Ceiling(x);
                 ByteWidth = 2;
                 Tables = tables;
@@ -96,7 +67,7 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             }
         }
 
-        private sealed class SimpleIndex
+        public sealed class SimpleIndex
         {
             public TableID TableID;
             public int ByteWidth;
@@ -128,13 +99,13 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
 
         }
 
-        private int _stringsHeapIndexWidth = 2;
-        private int _guidHeapIndexWidth = 2;
-        private int _blobHeapIndexWidth = 2;
+        public int _stringsHeapIndexWidth = 2;
+        public int _guidHeapIndexWidth = 2;
+        public int _blobHeapIndexWidth = 2;
 
-        private readonly SimpleIndex[] SimpleIndexes;
-        private readonly CodedIndex[] CodedIndexes;
-        private readonly TableSchema[] Tables;
+        public readonly SimpleIndex[] SimpleIndexes;
+        public readonly CodedIndex[] CodedIndexes;
+        public readonly TableSchema[] Tables;
 
 
 
@@ -163,6 +134,14 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 for (int i = 0; i < vb; i++)
                 {
                     Rows[i] = reader.ReadUInt32();
+                }
+
+
+                for (int i = 0; i < 64; i++)
+                {
+                    if (!Enum.IsDefined(typeof(TableID), i))
+                        continue;
+                    Console.WriteLine("{0} = {1} -> {2}", (TableID)i, i, TableExists((TableID)i));
                 }
 
                 if (HeapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide))
@@ -194,11 +173,15 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                         }
                         _tableMap.Add(v, new List<byte[]>());
                     }
+                    else
+                    {
+                        Debug.WriteLine(v);
+                    }
                 }
 
                 foreach (var t in Tables.Zip(SimpleIndexes, (t, s) => new { t, s }))
                 {
-                    if (t.t.RowCount > ushort.MaxValue)
+                    if (t.t.RowCount >= ushort.MaxValue)
                     {
                         t.s.ByteWidth = 4;
                     }
@@ -208,14 +191,13 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 {
                     var limit = Math.Pow(2, 16 - Math.Log(ci.Tables.Length));
                     var overLimit = false;
+
+                    var max = 0;
                     foreach (var t in Tables.Where(tb => ci.Tables.Contains(tb.TableID)))
                     {
-                        if (t.RowCount > limit)
-                        {
-                            overLimit = true;
-                            break;
-                        }
+                        max = Math.Max(max, t.RowCount);
                     }
+                    overLimit = max > (1 << (16 - ci.TagWidth));
                     if (overLimit)
                     {
                         ci.ByteWidth = 4;
@@ -274,56 +256,20 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                             w += ci.ByteWidth;
                         }
                     }
-                    table.ByteWidth = w;
+                    table.RowWidth = w;
+                    Console.WriteLine(table);
                 }
 
                 foreach (var table in Tables)
                 {
+                    if (!TableExists(table.TableID))
+                        continue;
                     List<byte[]> list;
                     if (!_tableMap.TryGetValue(table.TableID, out list))
                         continue;
                     for (int i = 0; i < table.RowCount; i++)
-                        list.Add(reader.ReadBytes(table.ByteWidth));
+                        list.Add(reader.ReadBytes(table.RowWidth));
                 }
-
-                //ReadTable(reader, ModuleTable);
-                //ReadTable(reader, TypeRefTable);
-                //ReadTable(reader, TypeDefTable);
-                //ReadTable(reader, FieldTable);
-                //ReadTable(reader, MethodDefTable);
-                //ReadTable(reader, ParamTable);
-                //ReadTable(reader, InterfaceImplTable);
-                //ReadTable(reader, MemberRefTable);
-                //ReadTable(reader, ConstantTable);
-                //ReadTable(reader, CustomAttributeTable);
-                //ReadTable(reader, FieldMarshalTable);
-                //ReadTable(reader, DeclSecurityTable);
-                //ReadTable(reader, ClassLayoutTable);
-                //ReadTable(reader, FieldLayoutTable);
-                //ReadTable(reader, StandAloneSigTable);
-                //ReadTable(reader, EventMapTable);
-                //ReadTable(reader, EventTable);
-                //ReadTable(reader, PropertyMapTable);
-                //ReadTable(reader, PropertyTable);
-                //ReadTable(reader, MethodSemanticsTable);
-                //ReadTable(reader, MethodImplTable);
-                //ReadTable(reader, ModuleRefTable);
-                //ReadTable(reader, TypeSpecTable);
-                //ReadTable(reader, ImplMapTable);
-                //ReadTable(reader, FieldRVATable);
-                //ReadTable(reader, AssemblyTable);
-                //ReadTable(reader, AssemblyProcessorTable);
-                //ReadTable(reader, AssemblyOSTable);
-                //ReadTable(reader, AssemblyRefTable);
-                //ReadTable(reader, AssemblyRefProcessorTable);
-                //ReadTable(reader, AssemblyRefOSTable);
-                //ReadTable(reader, FileTable);
-                //ReadTable(reader, ExportedTypeTable);
-                //ReadTable(reader, ManifestResourceTable);
-                //ReadTable(reader, NestedClassTable);
-                //ReadTable(reader, GenericParamTable);
-                //ReadTable(reader, MethodSpecTable);
-                //ReadTable(reader, GenericParamConstraintTable);
             }
         }
 
@@ -375,18 +321,18 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
         private CodedIndex[] GetCodedIndexes()
         {
             return new[] {
-                new CodedIndex(typeof(CustomAttributeType), new [] { TableID.MethodDef, TableID.MemberRef}),
+                new CodedIndex(typeof(TypeDefOrRef), new [] { TableID.TypeDef, TableID.TypeRef, TableID.TypeSpec}),
                 new CodedIndex(typeof(HasConstant), new [] { TableID.Field, TableID.Param, TableID.Property}),
                 new CodedIndex(typeof(HasCustomAttribute), new [] { TableID.MethodDef, TableID.Field, TableID.TypeRef, TableID.TypeDef, TableID.Param, TableID.InterfaceImpl, TableID.MemberRef, TableID.Module, TableID.Property, TableID.Event, TableID.StandAloneSig, TableID.ModuleRef, TableID.TypeSpec, TableID.Assembly, TableID.AssemblyRef, TableID.File, TableID.ExportedType, TableID.ManifestResource, TableID.GenericParam, TableID.GenericParamConstraint, TableID.MethodSpec}),
-                new CodedIndex(typeof(HasDeclSecurity), new [] { TableID.TypeDef, TableID.MethodDef, TableID.Assembly}),
                 new CodedIndex(typeof(HasFieldMarshal), new [] { TableID.Field, TableID.Param}),
-                new CodedIndex(typeof(HasSemantics), new [] { TableID.Event, TableID.Property}),
-                new CodedIndex(typeof(Implementation), new [] { TableID.File, TableID.AssemblyRef, TableID.ExportedType}),
-                new CodedIndex(typeof(MemberForwarded), new [] { TableID.Field, TableID.MethodDef}),
+                new CodedIndex(typeof(HasDeclSecurity), new [] { TableID.TypeDef, TableID.MethodDef, TableID.Assembly}),
                 new CodedIndex(typeof(MemberRefParent), new [] { TableID.TypeDef, TableID.TypeRef, TableID.ModuleRef, TableID.MethodDef, TableID.TypeSpec}),
+                new CodedIndex(typeof(HasSemantics), new [] { TableID.Event, TableID.Property}),
                 new CodedIndex(typeof(MethodDefOrRef), new [] { TableID.MethodDef, TableID.MemberRef}),
+                new CodedIndex(typeof(MemberForwarded), new [] { TableID.Field, TableID.MethodDef}),
+                new CodedIndex(typeof(Implementation), new [] { TableID.File, TableID.AssemblyRef, TableID.ExportedType}),
+                new CodedIndex(typeof(CustomAttributeType), new [] { TableID.MethodDef, TableID.MemberRef}),
                 new CodedIndex(typeof(ResolutionScope), new [] { TableID.Module, TableID.ModuleRef, TableID.AssemblyRef, TableID.TypeRef}),
-                new CodedIndex(typeof(TypeDefOrRef), new [] { TableID.TypeDef, TableID.TypeRef, TableID.TypeSpec}),
                 new CodedIndex(typeof(TypeOrMethodDef), new [] { TableID.TypeDef, TableID.MethodDef})
             };
         }
@@ -577,7 +523,10 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
 
         bool TableExists(TableID id)
         {
-            return (((ulong)_valid >> (int)id) & 1) == 1;
+
+            return ((long)_valid & (1L << (int)id)) != 0;
+            //var bitIndex = (int)id;
+            //return (((ulong)_valid >> bitIndex) & 1) != 0;
         }
 
         public int TableIndex(TableID id)

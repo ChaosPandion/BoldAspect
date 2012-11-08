@@ -7,7 +7,7 @@ using System.IO;
 
 namespace BoldAspect
 {
-    static class BinaryReaderExtensions
+    static class BinaryExtensions
     {
         public static int ReadCompressedInt32(this BinaryReader reader)
         {
@@ -86,6 +86,28 @@ namespace BoldAspect
                 data[cnt++] = b;
             }
             return Encoding.UTF8.GetString(data, 0, cnt);
+        }
+
+        public static short GetInt16(this byte[] data, int startIndex)
+        {
+            if (data == null)
+                throw new ArgumentNullException("data");
+            var result = (short)0;
+            var limit = startIndex + 2;
+            for (int i = startIndex; i < limit; i++)
+                result += (short)(data[i] << (i - startIndex) * 8);
+            return result;
+        }
+
+        public static int GetInt32(this byte[] data, int startIndex)
+        {
+            if (data == null)
+                throw new ArgumentNullException("data");
+            var result = 0;
+            var limit = startIndex + 4;
+            for (int i = startIndex; i < limit; i++)
+                result += (data[i] << ((i - startIndex) * 8));
+            return result;
         }
     }
 }

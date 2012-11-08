@@ -13,6 +13,7 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
         {
 
         }
+
         public string Get(uint index)
         {
             var data = Data;
@@ -20,12 +21,15 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             var lengthOffset = 0;
             {
                 var b1 = data[(int)index];
-                if ((b1 & 0x80) == 0x00)
+                if ((b1 & 0xC0) == 0xC0)
                 {
-                    length += b1;
-                    lengthOffset = 1;
+                    length += b1 << 24;
+                    length += data[(int)index + 1] << 16;
+                    length += data[(int)index + 2] << 8;
+                    length += data[(int)index + 3];
+                    lengthOffset = 4;
                 }
-                else if ((b1 & 0xC0) == 0x00)
+                else if ((b1 & 0x80) == 0x80)
                 {
                     length += data[(int)index + 1];
                     length += b1 << 8;
@@ -33,11 +37,8 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 }
                 else
                 {
-                    length += b1 << 24;
-                    length += data[(int)index + 1] << 16;
-                    length += data[(int)index + 2] << 8;
-                    length += data[(int)index + 3];
-                    lengthOffset = 4;
+                    length += b1;
+                    lengthOffset = 1;
                 }
             }
             return Encoding.Unicode.GetString(data, (int)index + lengthOffset, length);

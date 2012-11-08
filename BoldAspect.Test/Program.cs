@@ -15,8 +15,11 @@ namespace BoldAspect.Test
     {
         static void Main(string[] args)
         {
-            const string fileName = @"BoldAspect.dll";
+            //const string fileName = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll";
+            const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll";
+            //const string fileName = @"BoldAspect.dll";
             var pe = new PortableExecutable(fileName);
+            var mod = pe.ReadModule();
            // EX();
             
         }

@@ -16,20 +16,20 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
         private const int _validReserved = 0;
         private const int _validFlags = 0;
 
-        private readonly int _signature;
-        private readonly short _majorVersion;
-        private readonly short _minorVersion;
-        private readonly int _reserved;
-        private readonly int _length;
-        private readonly string _version;
-        private readonly short _flags;
-        private readonly short _streams;
-        private readonly StreamHeader[] _headers;
-        private readonly StringHeapStream _stringHeap;
-        private readonly UserStringHeapStream _userStringHeap;
-        private readonly BlobHeapStream _blobHeap;
-        private readonly GuidHeapStream _guidHeap;
-        private readonly TableStream _tables;
+        public readonly int _signature;
+        public readonly short _majorVersion;
+        public readonly short _minorVersion;
+        public readonly int _reserved;
+        public readonly int _length;
+        public readonly string _version;
+        public readonly short _flags;
+        public readonly short _streams;
+        public readonly StreamHeader[] _headers;
+        public readonly StringHeapStream _stringHeap;
+        public readonly UserStringHeapStream _userStringHeap;
+        public readonly BlobHeapStream _blobHeap;
+        public readonly GuidHeapStream _guidHeap;
+        public readonly TableStream _tables;
 
         public MetadataRoot(BinaryReader reader)
         {

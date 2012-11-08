@@ -112,6 +112,11 @@ namespace BoldAspect.PE
             }
         }
 
+        public IModule ReadModule()
+        {
+            return MetadataReader.ReadModule(_metadataRoot);
+        }
+
         int FindDataDirectoryOffset(DataDirectoryType type)
         {
             var rva = (int)_dataDirectories[(int)type].RVA;
