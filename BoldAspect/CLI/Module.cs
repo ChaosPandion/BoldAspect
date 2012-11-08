@@ -23,4 +23,18 @@ namespace BoldAspect.CLI.Metadata
             return Name ?? "";
         }
     }
+    class ModuleRefTable : Table<ModuleRefRecord>
+    {
+        public ModuleRefTable()
+            : base(TableID.ModuleRef)
+        {
+
+        }
+    }
+
+    struct ModuleRefRecord
+    {
+        [StringHeapIndex]
+        public uint Name;
+    }
 }

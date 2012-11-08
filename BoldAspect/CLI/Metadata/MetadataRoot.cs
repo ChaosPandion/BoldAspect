@@ -94,5 +94,19 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 }
             }
         }
+
+
+
+        public IModule GetModule()
+        {
+            //var schema = _tables.Tables[
+            return null;
+        }
+
+
+        public IAssembly GetAssembly()
+        {
+            return null;
+        }
     }
 }

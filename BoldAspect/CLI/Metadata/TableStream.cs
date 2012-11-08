@@ -84,17 +84,17 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             }
         }
 
-        private sealed class StringsHeapIndex
+        public sealed class StringsHeapIndex
         {
 
         }
 
-        private sealed class GuidHeapIndex
+        public sealed class GuidHeapIndex
         {
 
         }
 
-        private sealed class BlobHeapIndex
+        public sealed class BlobHeapIndex
         {
 
         }
@@ -271,6 +271,16 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                         list.Add(reader.ReadBytes(table.RowWidth));
                 }
             }
+        }
+
+        public byte[] GetRow(TableID table, int index)
+        {
+            return _tableMap[table][index];
+        }
+
+        public TableSchema GetTableSchema(TableID id)
+        {
+            return Tables.Single(t => t.TableID == id);
         }
 
 

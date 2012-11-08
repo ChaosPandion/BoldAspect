@@ -47,10 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryExtensions.cs" />
-    <Compile Include="CLI\AssemblyFlags.cs" />
-    <Compile Include="CLI\AssemblyHashAlgorithm.cs" />
     <Compile Include="CLI\Assembly.cs" />
-    <Compile Include="CLI\AssemblyRef.cs" />
+    <Compile Include="CLI\Metadata\BlobReader.cs" />
     <Compile Include="CLI\Metadata\HeapSizeFlags.cs" />
     <Compile Include="CLI\Metadata\BlobHeapStream.cs" />
     <Compile Include="CLI\Metadata\MetadataReader.cs" />
@@ -60,7 +58,6 @@
     <Compile Include="CLI\Metadata\TypeSpecBlob.cs" />
     <Compile Include="CLI\ClassLayout.cs" />
     <Compile Include="CLI\ElementType.cs" />
-    <Compile Include="CLI\EventAttributes.cs" />
     <Compile Include="CLI\FileAttributes.cs" />
     <Compile Include="CLI\GenericParamAttributes.cs" />
     <Compile Include="CLI\ManifestResourceAttributes.cs" />
@@ -68,8 +65,6 @@
     <Compile Include="CLI\MethodImplAttributes.cs" />
     <Compile Include="CLI\MethodSemanticsAttributes.cs" />
     <Compile Include="CLI\ParamAttributes.cs" />
-    <Compile Include="CLI\PInvokeAttributes.cs" />
-    <Compile Include="CLI\PropertyAttributes.cs" />
     <Compile Include="CLI\Metadata\ArrayShapeBlob.cs" />
     <Compile Include="CLI\Metadata\ConstraintBlob.cs" />
     <Compile Include="CLI\Metadata\CustomModBlob.cs" />
@@ -94,13 +89,8 @@
     <Compile Include="CLI\Metadata\CustomAttributeType.cs" />
     <Compile Include="CLI\DeclSecurity.cs" />
     <Compile Include="CLI\Event.cs" />
-    <Compile Include="CLI\EventMap.cs" />
     <Compile Include="CLI\ExportedType.cs" />
     <Compile Include="CLI\Field.cs" />
-    <Compile Include="CLI\FieldAttributes.cs" />
-    <Compile Include="CLI\FieldLayout.cs" />
-    <Compile Include="CLI\FieldMarshal.cs" />
-    <Compile Include="CLI\FieldRVA.cs" />
     <Compile Include="CLI\File.cs" />
     <Compile Include="CLI\GenericParam.cs" />
     <Compile Include="CLI\GenericParamConstraint.cs" />
@@ -128,11 +118,9 @@
     <Compile Include="CLI\MethodSemantics.cs" />
     <Compile Include="CLI\MethodSpec.cs" />
     <Compile Include="CLI\Module.cs" />
-    <Compile Include="CLI\ModuleRef.cs" />
     <Compile Include="CLI\NestedClass.cs" />
     <Compile Include="CLI\Param.cs" />
     <Compile Include="CLI\Property.cs" />
-    <Compile Include="CLI\PropertyMap.cs" />
     <Compile Include="CLI\Metadata\ResolutionScope.cs" />
     <Compile Include="CLI\PE\RuntimeFlags.cs" />
     <Compile Include="Limbo\SimpleIndexAttribute.cs" />
