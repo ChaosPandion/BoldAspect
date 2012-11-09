@@ -1,8 +1,11 @@
-using System;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using BoldAspect.CLI.Metadata;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI
 {
     class MemberRefTable : Table<MemberRefRecord>
     {
@@ -13,7 +16,7 @@ namespace BoldAspect.CLI.Metadata
         }
     }
 
-    struct MemberRefRecord 
+    struct MemberRefRecord
     {
         [CodedIndex(typeof(MemberRefParent))]
         public uint Class;

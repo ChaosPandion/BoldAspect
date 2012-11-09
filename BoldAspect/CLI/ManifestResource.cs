@@ -3,6 +3,14 @@ using System.IO;
 
 namespace BoldAspect.CLI.Metadata
 {
+    [Flags]
+    public enum ManifestResourceAttributes : uint
+    {
+        VisibilityMask = 0x0007,
+        Public = 0x0001,
+        Private = 0x0002,
+    }
+
     class ManifestResourceTable : Table<ManifestResourceRecord>
     {
         public ManifestResourceTable()
@@ -24,10 +32,6 @@ namespace BoldAspect.CLI.Metadata
         public uint Name;
 
         [CodedIndex(typeof(Implementation))]
-        public uint Implementation;
-
-
-        
-        
+        public uint Implementation;   
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -6,6 +7,7 @@ using System.Text;
 using BoldAspect.CLI.Metadata;
 using BoldAspect.CLI.Metadata.Blobs;
 using BoldAspect.CLI.Metadata.MetadataStreams;
+using BoldAspect.CLI.PE;
 
 namespace BoldAspect.PE
 {
@@ -14,23 +16,17 @@ namespace BoldAspect.PE
     /// </summary>
     public sealed class PortableExecutable
     {
+        readonly byte[] _data;
         readonly DosHeader _dosHeader;
         readonly Signature _signature;
         readonly FileHeader _fileHeader;
         readonly ImageType _imageType;
         readonly OptionalHeader32 _optionalHeader32;
         readonly OptionalHeader64 _optionalHeader64;
-        readonly DataDirectoryInfo[] _dataDirectories;
+        readonly DataDirectoryHeader[] _dataDirectories;
         readonly SectionHeader[] _sectionHeaders;
         readonly CliHeader _cliHeader;
         readonly MetadataRoot _metadataRoot;
-        //readonly MetadataRoot _metadataRoot;
-        //readonly MetadataStreamHeader[] _metadataStreamHeaders;
-        //readonly TableStream _tableStream;
-        //readonly StringHeap _stringHeap;
-        //readonly UserStringHeap _userStringHeap;
-        //readonly GuidHeap _guidHeap;
-        //readonly BlobHeap _blobHeap;
 
                 
         /// <summary>
@@ -41,10 +37,10 @@ namespace BoldAspect.PE
         {
             if (filePath == null)
                 throw new ArgumentNullException("filePath");
-            var data = File.ReadAllBytes(filePath);
-            if (data.Length == 0)
+            _data = File.ReadAllBytes(filePath);
+            if (_data.Length == 0)
                 throw new ArgumentException("ZeroLengthFile");
-            var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            var handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
             try
             {
                 var ptr = handle.AddrOfPinnedObject();
@@ -70,20 +66,20 @@ namespace BoldAspect.PE
                         case ImageType.PE32:
                             _optionalHeader32 = (OptionalHeader32)Marshal.PtrToStructure(ptr, typeof(OptionalHeader32));
                             ptr += Marshal.SizeOf(typeof(OptionalHeader32));
-                            _dataDirectories = new DataDirectoryInfo[_optionalHeader32.DataDirectoryCount];
+                            _dataDirectories = new DataDirectoryHeader[_optionalHeader32.DataDirectoryCount];
                             break;
                         case ImageType.PE64:
                             _optionalHeader64 = (OptionalHeader64)Marshal.PtrToStructure(ptr, typeof(OptionalHeader64));
                             ptr += Marshal.SizeOf(typeof(OptionalHeader64));
-                            _dataDirectories = new DataDirectoryInfo[_optionalHeader64.DataDirectoryCount];
+                            _dataDirectories = new DataDirectoryHeader[_optionalHeader64.DataDirectoryCount];
                             break;
                         default:
                             throw new ArgumentException("UnknownImageType");
                     }
-                    var dataDirectorySize = Marshal.SizeOf(typeof(DataDirectoryInfo));
+                    var dataDirectorySize = Marshal.SizeOf(typeof(DataDirectoryHeader));
                     for (int i = 0; i < _dataDirectories.Length; i++)
                     {
-                        _dataDirectories[i] = (DataDirectoryInfo)Marshal.PtrToStructure(ptr, typeof(DataDirectoryInfo));
+                        _dataDirectories[i] = (DataDirectoryHeader)Marshal.PtrToStructure(ptr, typeof(DataDirectoryHeader));
                         ptr += dataDirectorySize;
                     }
                 }
@@ -101,7 +97,7 @@ namespace BoldAspect.PE
                     _cliHeader = (CliHeader)Marshal.PtrToStructure(ptr, typeof(CliHeader));
 
                     var metaDataRootOffset = FindRvaOffset((int)_cliHeader.MetadataRVA);
-                    using (var ms = new MemoryStream(data, metaDataRootOffset, (int)_cliHeader.MetadataSize, false, false))
+                    using (var ms = new MemoryStream(_data, metaDataRootOffset, (int)_cliHeader.MetadataSize, false, false))
                     using (var r = new BinaryReader(ms))
                         _metadataRoot = new MetadataRoot(r);
                 }

@@ -11,7 +11,7 @@ using BoldAspect.CLI.Metadata;
 
 namespace BoldAspect.CLI.Metadata.MetadataStreams
 {
-    public sealed class TableStream : MetadataStream
+    public sealed class TableStream
     {
         public readonly uint _reserved1;
         public readonly byte _majorVersion;
@@ -110,7 +110,6 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
 
 
         public TableStream(byte[] data)
-            : base(data)
         {
 
             SimpleIndexes = GetSimpleIndexes();

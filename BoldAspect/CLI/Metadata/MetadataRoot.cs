@@ -95,7 +95,16 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             }
         }
 
+        public int GetRowCount(TableID id)
+        {
+            return _tables.Tables.Single(t => t.TableID == id).RowCount;
+        }
 
+        public BlobReader ReadRow(TableID id, int row)
+        {
+            var data = _tables._tableMap[id][0];
+            return new BlobReader(data, 0, data.Length);
+        }
 
         public IModule GetModule()
         {

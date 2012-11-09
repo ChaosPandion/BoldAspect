@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect
 {
-    public sealed class BlobReader : IDisposable
+    public class BlobReader : IDisposable
     {
         private readonly byte[] _data;
         private readonly int _offset;
@@ -34,26 +34,23 @@ namespace BoldAspect.CLI.Metadata
             return result;
         }
 
+        public T Read<T>(T expected) where T : struct
+        {
+            var size = Marshal.SizeOf(typeof(T));
+            ValidateIndex(size);
+            var result = (T)Marshal.PtrToStructure(_current, typeof(T));
+            if (!object.Equals(result, expected))
+                throw new Exception();
+            _current += size;
+            return result;
+        }
+
         public T? TryRead<T>() where T : struct
         {
             var size = Marshal.SizeOf(typeof(T));
             if (!CanRead(size))
                 return null;
             return (T)Marshal.PtrToStructure(_current, typeof(T));
-        }
-
-        public string ReadAsciiString(int maxLength)
-        {
-            var start = (int)((long)_current - (long)_start);
-            var index = start;
-            var limit = _offset + _length;
-            for (; index < limit; index++)
-                if (_data[index] == 0 && (index + 1) % 4 == 0)
-                    break;
-            var nullLimit = index;
-            while (_data[nullLimit] == 0)
-                nullLimit--;
-            return Encoding.ASCII.GetString(_data, start, nullLimit - start);
         }
 
         public void Dispose()

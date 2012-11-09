@@ -3,7 +3,7 @@
 namespace BoldAspect.PE
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct DataDirectoryInfo
+    public struct DataDirectoryHeader
     {
         public readonly uint RVA;
 
