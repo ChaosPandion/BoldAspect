@@ -1,7 +1,10 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using BoldAspect.CLI.Metadata;
+using BoldAspect.CLI.Metadata.MetadataStreams;
+using BoldAspect.PE;
 
 namespace BoldAspect.CLI.Metadata
 {
@@ -9,13 +12,23 @@ namespace BoldAspect.CLI.Metadata
     {
         string Name { get; set; }
         Guid Guid { get; set; }
+        TypeCollection DefinedTypes { get; } 
         IAssembly Assembly { get; set; }
+        
     }
 
     public sealed class CLIModule : IModule
     {
+        private readonly TypeCollection _definedTypes = new TypeCollection();
+
         public string Name { get; set; }
         public Guid Guid { get; set; }
+
+        public TypeCollection DefinedTypes 
+        {
+            get { return _definedTypes; }
+        }
+
         public IAssembly Assembly { get; set; }
 
         public override string ToString()
@@ -23,18 +36,24 @@ namespace BoldAspect.CLI.Metadata
             return Name ?? "";
         }
     }
-    class ModuleRefTable : Table<ModuleRefRecord>
-    {
-        public ModuleRefTable()
-            : base(TableID.ModuleRef)
-        {
 
+    public interface IModuleRef
+    {
+        string Name { get; set; }
+    }
+
+    public sealed class CLIModuleRef : IModuleRef
+    {
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name ?? "";
         }
     }
 
-    struct ModuleRefRecord
+    public sealed class ModuleRefCollection : Collection<IModuleRef>
     {
-        [StringHeapIndex]
-        public uint Name;
+
     }
 }

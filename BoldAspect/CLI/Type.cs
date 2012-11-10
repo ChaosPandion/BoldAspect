@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,12 +44,48 @@ namespace BoldAspect.CLI
         IsTypeForwarder = 0x00200000,
     }
 
-    class TypeDefTable : Table<TypeDefRecord>
+    public interface IType
     {
-        public TypeDefTable()
-            : base(TableID.TypeDef)
-        {
+        IModule DeclaringModule { get; set; }
+        TypeAttributes Attributes { get; set; }
+        string Name { get; set; }
+        string NameSpace { get; set; }
+        IType BaseType { get; set; }
+        IType DeclaringType { get; set; }
+    }
 
+    public sealed class TypeCollection : Collection<IType>
+    {
+
+    }
+
+    public sealed class CLIType : IType
+    {
+        public TypeAttributes Attributes { get; set; }
+        public string Name { get; set; }
+        public string NameSpace { get; set; }
+        public IModule DeclaringModule { get; set; }
+        public IType BaseType { get; set; }
+        public IType DeclaringType { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    public sealed class CLITypeRef : IType
+    {
+        public TypeAttributes Attributes { get; set; }
+        public string Name { get; set; }
+        public string NameSpace { get; set; }
+        public IModule DeclaringModule { get; set; }
+        public IType BaseType { get; set; }
+        public IType DeclaringType { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 

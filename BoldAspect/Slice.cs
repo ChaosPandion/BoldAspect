@@ -19,5 +19,20 @@ namespace BoldAspect
             Offset = offset;
             Length = length;
         }
+
+        public Slice GetSlice(int length)
+        {
+            return new Slice(Data, Offset, length);
+        }
+
+        public Slice GetSlice(int offset, int length)
+        {
+            return new Slice(Data, Offset + offset, length);
+        }
+
+        public BlobReader CreateReader()
+        {
+            return new BlobReader(this);
+        }
     }
 }

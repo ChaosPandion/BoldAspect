@@ -11,8 +11,86 @@ using BoldAspect.CLI.Metadata;
 
 namespace BoldAspect.CLI.Metadata.MetadataStreams
 {
+    public sealed class TableSchema
+    {
+        public TableID TableID;
+        public int RowCount;
+        public int RowWidth;
+        public int Offset;
+        public int ByteLength;
+        public object[] Columns;
+
+        public TableSchema(TableID tableID, params object[] columns)
+        {
+            TableID = tableID;
+            Columns = columns;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("TableID={0};RowCount={1};RowWidth={2}", TableID, RowCount, RowWidth);
+        }
+    }
+
+    public sealed class CodedIndex
+    {
+        public Type EnumType;
+        public int TagWidth;
+        public int ByteWidth;
+        public TableID[] Tables;
+
+        public CodedIndex(Type enumType, TableID[] tables)
+        {
+            EnumType = enumType;
+            var y = (double)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();
+            var c = y / 2.0;
+            var x = Math.Log(c + y) / Math.Log(2);
+            TagWidth = (int)Math.Ceiling(x);
+            ByteWidth = 2;
+            Tables = tables;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("EnumType={0};TagWidth={1};ByteWidth={2}", EnumType.Name, TagWidth, ByteWidth);
+        }
+    }
+
+    public sealed class SimpleIndex
+    {
+        public TableID TableID;
+        public int ByteWidth;
+
+        public SimpleIndex(TableID tableID)
+        {
+            TableID = tableID;
+            ByteWidth = 2;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}({1})", TableID, ByteWidth);
+        }
+    }
+
+    public sealed class StringsHeapIndex
+    {
+
+    }
+
+    public sealed class GuidHeapIndex
+    {
+
+    }
+
+    public sealed class BlobHeapIndex
+    {
+
+    }
+
     public sealed class TableStream
     {
+        private readonly Slice _data;
         public readonly uint _reserved1;
         public readonly byte _majorVersion;
         public readonly byte _minorVersion;
@@ -21,83 +99,8 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
         public readonly TableFlags _valid;
         public readonly TableFlags _sorted;
         public readonly uint[] Rows;
-        public readonly Dictionary<TableID, List<byte[]>> _tableMap = new Dictionary<TableID, List<byte[]>>();
+        public readonly Dictionary<TableID, Slice> _tableMap = new Dictionary<TableID, Slice>();
 
-        public sealed class TableSchema
-        {
-            public TableID TableID;
-            public int RowCount;
-            public int RowWidth;
-            public int Offset;
-            public int ByteLength;
-            public object[] Columns;
-
-            public TableSchema(TableID tableID, params object[] columns)
-            {
-                TableID = tableID;
-                Columns = columns;
-            }
-
-            public override string ToString()
-            {
-                return string.Format("TableID={0};RowCount={1};RowWidth={2}", TableID, RowCount, RowWidth);
-            }
-        }
-        public sealed class CodedIndex
-        {
-            public Type EnumType;
-            public int TagWidth;
-            public int ByteWidth;
-            public TableID[] Tables;
-
-            public CodedIndex(Type enumType, TableID[] tables)
-            {
-                EnumType = enumType;
-                var y = (double)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();
-                var c = y / 2.0;
-                var x = Math.Log(c + y) / Math.Log(2);
-                TagWidth = (int)Math.Ceiling(x);
-                ByteWidth = 2;
-                Tables = tables;
-            }
-
-            public override string ToString()
-            {
-                return string.Format("EnumType={0};TagWidth={1};ByteWidth={2}", EnumType.Name, TagWidth, ByteWidth);
-            }
-        }
-
-        public sealed class SimpleIndex
-        {
-            public TableID TableID;
-            public int ByteWidth;
-
-            public SimpleIndex(TableID tableID)
-            {
-                TableID = tableID;
-                ByteWidth = 2;
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0}({1})", TableID, ByteWidth);
-            }
-        }
-
-        public sealed class StringsHeapIndex
-        {
-
-        }
-
-        public sealed class GuidHeapIndex
-        {
-
-        }
-
-        public sealed class BlobHeapIndex
-        {
-
-        }
 
         public int _stringsHeapIndexWidth = 2;
         public int _guidHeapIndexWidth = 2;
@@ -109,30 +112,29 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
 
 
 
-        public TableStream(byte[] data)
+        public TableStream(Slice data)
         {
 
             SimpleIndexes = GetSimpleIndexes();
             CodedIndexes = GetCodedIndexes();
             Tables = GetTables();
-
-            using (var ms = new MemoryStream(data))
-            using (var reader = new BinaryReader(ms))
+            _data = data;
+            using (var reader = data.CreateReader())
             {
-                _reserved1 = reader.ReadUInt32();
-                _majorVersion = reader.ReadByte();
-                _minorVersion = reader.ReadByte();
-                HeapSizeFlags = (HeapSizeFlags)reader.ReadByte();
-                _reserved2 = reader.ReadByte();
-                _valid = (TableFlags)reader.ReadUInt64();
-                _sorted = (TableFlags)reader.ReadUInt64();
+                _reserved1 = reader.Read<uint>();
+                _majorVersion = reader.Read<byte>();
+                _minorVersion = reader.Read<byte>();
+                HeapSizeFlags = reader.Read<HeapSizeFlags>();
+                _reserved2 = reader.Read<byte>();
+                _valid = reader.Read<TableFlags>();
+                _sorted = reader.Read<TableFlags>();
 
 
                 var vb = ValidTableCount;
                 Rows = new uint[vb];
                 for (int i = 0; i < vb; i++)
                 {
-                    Rows[i] = reader.ReadUInt32();
+                    Rows[i] = reader.Read<uint>();
                 }
 
 
@@ -170,7 +172,6 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                                 break;
                             }
                         }
-                        _tableMap.Add(v, new List<byte[]>());
                     }
                     else
                     {
@@ -263,18 +264,14 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
                 {
                     if (!TableExists(table.TableID))
                         continue;
-                    List<byte[]> list;
-                    if (!_tableMap.TryGetValue(table.TableID, out list))
-                        continue;
-                    for (int i = 0; i < table.RowCount; i++)
-                        list.Add(reader.ReadBytes(table.RowWidth));
+                    _tableMap.Add(table.TableID, reader.ReadSlice(table.RowCount * table.RowWidth));
                 }
             }
         }
 
-        public byte[] GetRow(TableID table, int index)
+        public Slice GetTableData(TableID table)
         {
-            return _tableMap[table][index];
+            return _tableMap[table];
         }
 
         public TableSchema GetTableSchema(TableID id)
@@ -561,29 +558,5 @@ namespace BoldAspect.CLI.Metadata.MetadataStreams
             return (int)Rows[index];
         }
 
-        void ReadTable<T>(BinaryReader reader, Table<T> target)
-            where T : new()
-        {
-            if (TableExists(target.TableID))
-            {
-                var type = typeof(T);
-                var fields = type.GetFields().Select(f => new
-                {
-                    field = f,
-                    type = f.FieldType.IsEnum ? Enum.GetUnderlyingType(f.FieldType) : f.FieldType,
-                    attr = (ColumnAttribute)f.GetCustomAttributes(typeof(ColumnAttribute), true).First()
-                }).ToArray();
-                var c = GetRowCount(target.TableID);
-                for (int i = 0; i < c; i++)
-                {
-                    var v = (object)new T();
-                    foreach (var f in fields)
-                    {
-                        f.field.SetValue(v, Convert.ChangeType(f.attr.GetIndex(reader, this), f.type));
-                    }
-                    target.Add((T)v);
-                }
-            }
-        }
     }
 }
