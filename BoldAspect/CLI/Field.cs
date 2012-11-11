@@ -39,6 +39,7 @@ namespace BoldAspect.CLI
     {
         FieldAttributes Flags { get; set; }
         string Name { get; set; }
+        ITypeRef DeclaringType { get; set; }
         FieldSignature Signature { get; set; }
         IModule DeclaringModule { get; set; }
     }
@@ -47,6 +48,7 @@ namespace BoldAspect.CLI
     {
         public FieldAttributes Flags { get; set; }
         public string Name { get; set; }
+        public ITypeRef DeclaringType { get; set; }
         public FieldSignature Signature { get; set; }
         public IModule DeclaringModule { get; set; }
 

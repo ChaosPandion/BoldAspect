@@ -50,9 +50,10 @@ namespace BoldAspect.CLI
         TypeAttributes Attributes { get; set; }
         string Name { get; set; }
         string NameSpace { get; set; }
-        IType BaseType { get; set; }
-        IType DeclaringType { get; set; }
-        MethodCollection Methods { get; } 
+        ITypeRef BaseType { get; set; }
+        ITypeRef DeclaringType { get; set; }
+        FieldCollection Fields { get; }
+        MethodCollection Methods { get; }
     }
 
     public sealed class TypeCollection : Collection<IType>
@@ -62,13 +63,26 @@ namespace BoldAspect.CLI
 
     public sealed class CLIType : IType
     {
+        private readonly MethodCollection _methods = new MethodCollection();
+        private readonly FieldCollection _fields = new FieldCollection();
+
         public TypeAttributes Attributes { get; set; }
         public string Name { get; set; }
         public string NameSpace { get; set; }
         public IModule DeclaringModule { get; set; }
-        public IType BaseType { get; set; }
-        public IType DeclaringType { get; set; }
-        public MethodCollection Methods { get; private set; }
+        public ITypeRef BaseType { get; set; }
+        public ITypeRef DeclaringType { get; set; }
+
+        public FieldCollection Fields
+        {
+            get { return _fields; }
+        }
+
+        public MethodCollection Methods 
+        {
+            get { return _methods; }
+        }
+
         internal MetadataToken ExtendsToken { get; set; }
         internal uint FieldListIndex { get; set; }
         internal uint MethodListIndex { get; set; }
@@ -77,6 +91,8 @@ namespace BoldAspect.CLI
         {
             return Name;
         }
+
+
     }
 
     public interface ITypeRef

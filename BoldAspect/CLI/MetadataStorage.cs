@@ -91,6 +91,7 @@ namespace BoldAspect.CLI
                 ReadDefinedMethods(pe, module);
                 ReadDefinedFields(pe, module);
 
+
                 var start = module.DefinedMethods.Count - 1;
                 var stopIndex = module.DefinedParams.Count - 1;
                 for (int i = start; i >= 0; --i)
@@ -115,13 +116,48 @@ namespace BoldAspect.CLI
                     stopIndex = paramStart;
                 }
 
-                foreach (var method in module.DefinedMethods.Cast<CLIMethod>())
-                {
-                }
-
+                CompleteDefinedTypes(pe, module);
 
                 module.Assembly = ReadAssembly(pe, module);
                 return module;
+            }
+        }
+
+        private static void CompleteDefinedTypes(PortableExecutable pe, IModule module)
+        {
+            {
+                var start = module.DefinedTypes.Count - 1;
+                var stopIndex = module.DefinedFields.Count - 1;
+                for (int i = start; i >= 0; --i)
+                {
+                    var type = (CLIType)module.DefinedTypes[i];
+                    if (type.FieldListIndex <= 0)
+                        continue;
+                    var fieldStart = (int)type.FieldListIndex - 1;
+                    for (int j = fieldStart; j < stopIndex; j++)
+                    {
+                        var field = module.DefinedFields[j];
+                        type.Fields.Add(field);
+                    }
+                    stopIndex = fieldStart;
+                }
+            }
+            {
+                var start = module.DefinedTypes.Count - 1;
+                var stopIndex = module.DefinedMethods.Count - 1;
+                for (int i = start; i >= 0; --i)
+                {
+                    var type = (CLIType)module.DefinedTypes[i];
+                    if (type.FieldListIndex <= 0)
+                        continue;
+                    var methodStart = (int)type.MethodListIndex - 1;
+                    for (int j = methodStart; j < stopIndex; j++)
+                    {
+                        var method = module.DefinedMethods[j];
+                        type.Methods.Add(method);
+                    }
+                    stopIndex = methodStart;
+                }
             }
         }
 
