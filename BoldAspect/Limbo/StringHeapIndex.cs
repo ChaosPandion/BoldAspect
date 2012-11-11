@@ -5,17 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI
 {
     sealed class StringHeapIndexAttribute : ColumnAttribute
     {
-        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
-        {
-            if (stream.HeapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide))
-            {
-                return reader.ReadUInt32();
-            }
-            return reader.ReadUInt16();
-        }
+        //public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
+        //{
+        //    if (stream.HeapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide))
+        //    {
+        //        return reader.ReadUInt32();
+        //    }
+        //    return reader.ReadUInt16();
+        //}
     }
 }

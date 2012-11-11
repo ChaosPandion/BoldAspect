@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using BoldAspect.CLI.Metadata;
 
-namespace BoldAspect.CLI.Metadata
+
+namespace BoldAspect.CLI
 {
     class ConstantTable : Table<ConstantRecord>
     {

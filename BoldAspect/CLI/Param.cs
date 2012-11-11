@@ -1,8 +1,9 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
-using BoldAspect.CLI.Metadata;
 
-namespace BoldAspect.CLI.Metadata
+
+namespace BoldAspect.CLI
 {
     [Flags]
     public enum ParamAttributes : ushort
@@ -15,24 +16,29 @@ namespace BoldAspect.CLI.Metadata
         Unused = 0xcfe0,
     }
 
-    class ParamTable : Table<ParamRecord>
+    public interface IParam
     {
-        public ParamTable()
-            : base(TableID.Param)
-        {
+        ParamAttributes Flags { get; set; }
+        int Sequence { get; set; }
+        string Name { get; set; }
+        IModule DeclaringModule { get; set; }
+    }
 
+    public sealed class CLIParam : IParam
+    {
+        public ParamAttributes Flags { get; set; }
+        public int Sequence { get; set; }
+        public string Name { get; set; }
+        public IModule DeclaringModule { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 
-    struct ParamRecord
+    public sealed class ParamCollection : Collection<IParam>
     {
-        [ConstantColumn(typeof(ParamAttributes))]
-        public ParamAttributes Flags;
 
-        [ConstantColumn(typeof(ushort))]
-        public ushort Sequence;
-
-        [StringHeapIndex]
-        public uint Name;
     }
 }

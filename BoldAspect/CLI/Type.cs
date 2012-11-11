@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BoldAspect.CLI.Metadata;
+
 
 namespace BoldAspect.CLI
 {
@@ -52,6 +52,7 @@ namespace BoldAspect.CLI
         string NameSpace { get; set; }
         IType BaseType { get; set; }
         IType DeclaringType { get; set; }
+        MethodCollection Methods { get; } 
     }
 
     public sealed class TypeCollection : Collection<IType>
@@ -67,6 +68,10 @@ namespace BoldAspect.CLI
         public IModule DeclaringModule { get; set; }
         public IType BaseType { get; set; }
         public IType DeclaringType { get; set; }
+        public MethodCollection Methods { get; private set; }
+        internal MetadataToken ExtendsToken { get; set; }
+        internal uint FieldListIndex { get; set; }
+        internal uint MethodListIndex { get; set; }
 
         public override string ToString()
         {
@@ -74,18 +79,45 @@ namespace BoldAspect.CLI
         }
     }
 
-    public sealed class CLITypeRef : IType
+    public interface ITypeRef
     {
-        public TypeAttributes Attributes { get; set; }
+        MetadataToken Token { get; set; }
+        string Name { get; set; }
+        string NameSpace { get; set; }
+    }
+
+
+    public sealed class TypeRefCollection : Collection<ITypeRef>
+    {
+
+    }
+
+    public sealed class CLITypeRef : ITypeRef
+    {
+        public MetadataToken Token { get; set; }
         public string Name { get; set; }
         public string NameSpace { get; set; }
-        public IModule DeclaringModule { get; set; }
-        public IType BaseType { get; set; }
-        public IType DeclaringType { get; set; }
 
         public override string ToString()
         {
             return Name;
+        }
+    }
+
+    public struct TypeRefToken
+    {
+        public readonly ResolutionScope Scope;
+        public readonly uint Index;
+
+        public TypeRefToken(ResolutionScope scope, uint index)
+        {
+            Scope = scope;
+            Index = index;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}(0x{1:X4})", Scope, Index);
         }
     }
 

@@ -6,9 +6,9 @@
 //using System.Runtime.InteropServices;
 //using System.Text;
 //using System.Threading.Tasks;
-//using BoldAspect.CLI.Metadata;
+//
 
-//namespace BoldAspect.CLI.Metadata
+//namespace BoldAspect.CLI
 //{
 //    public sealed class TableStream
 //    {

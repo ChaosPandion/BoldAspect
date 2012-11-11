@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI
 {
     sealed class CodedIndexAttribute : ColumnAttribute
     {
@@ -20,29 +20,29 @@ namespace BoldAspect.CLI.Metadata
             _tagWidth = (int)Math.Ceiling(x);
         }
 
-        public Type EnumType
-        {
-            get { return _enumType; }
-        }
+        //public Type EnumType
+        //{
+        //    get { return _enumType; }
+        //}
 
-        public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
-        {
-            return 0;
-            var val = reader.ReadUInt16();
-            var tag = (int)(val & _tagWidth);
-            var tb = (TableID)Enum.Parse(typeof(TableID), Enum.GetName(_enumType, tag));
-            var index = stream.TableIndex(tb);
-            var rowSum = 0;
-            for (int i = 0; i < index; i++)
-            {
-                rowSum += (int)stream.Rows[i];
-            }
-            if (rowSum > Math.Pow(2, 16 - Math.Log(index)))
-            {
-                return (uint)val + (uint)(reader.ReadUInt16() >> 2);
-            }
-            return (uint)val;
-        }
+        //public override ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream)
+        //{
+        //    return 0;
+        //    var val = reader.ReadUInt16();
+        //    var tag = (int)(val & _tagWidth);
+        //    var tb = (TableID)Enum.Parse(typeof(TableID), Enum.GetName(_enumType, tag));
+        //    var index = stream.TableIndex(tb);
+        //    var rowSum = 0;
+        //    for (int i = 0; i < index; i++)
+        //    {
+        //        rowSum += (int)stream.Rows[i];
+        //    }
+        //    if (rowSum > Math.Pow(2, 16 - Math.Log(index)))
+        //    {
+        //        return (uint)val + (uint)(reader.ReadUInt16() >> 2);
+        //    }
+        //    return (uint)val;
+        //}
 
     }
 }

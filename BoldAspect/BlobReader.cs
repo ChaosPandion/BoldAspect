@@ -18,6 +18,11 @@ namespace BoldAspect
         private readonly IntPtr _start;
         private IntPtr _current;
 
+        public BlobReader(Blob blob)
+        {
+
+        }
+
         public BlobReader(Slice slice)
             : this(slice.Data, slice.Offset, slice.Length)
         {
@@ -35,9 +40,14 @@ namespace BoldAspect
             _start = _current = _first + offset;
         }
 
-        int Index
+        public int Index
         {
             get { return (int)((long)_current - (long)_first); }
+        }
+
+        public int Length
+        {
+            get { return _length; }
         }
 
         public void Seek(int index)
@@ -50,6 +60,23 @@ namespace BoldAspect
             _current += offset;
         }
 
+        public byte ReadByte()
+        {
+            ValidateIndex(1);
+            var result = Marshal.ReadByte(_current);
+            _current += 1;
+            return result;
+        }
+
+        public byte[] ReadBytes(int count)
+        {
+            ValidateIndex(count);
+            var result = new byte[count];
+            Array.Copy(_data, Index, result, 0, count);
+            _current += count;
+            return result;
+        }
+
         public int ReadBigEndianCompressedInteger()
         {
             var result = 0;
@@ -59,21 +86,21 @@ namespace BoldAspect
             var b1 = data[(int)index];
             if ((b1 & 0xC0) == 0xC0)
             {
-                result += b1 << 24;
-                result += data[(int)index + 1] << 16;
-                result += data[(int)index + 2] << 8;
-                result += data[(int)index + 3];
+                result |= (b1 & ~0xC0) << 24;
+                result |= data[(int)index + 1] << 16;
+                result |= data[(int)index + 2] << 8;
+                result |= data[(int)index + 3];
                 offset = 4;
             }
             else if ((b1 & 0x80) == 0x80)
             {
-                result += data[(int)index + 1];
-                result += b1 << 8;
+                result |= data[(int)index + 1];
+                result |= (b1 & ~0x80) << 8;
                 offset = 2;
             }
             else
             {
-                result += b1;
+                result = b1;
                 offset = 1;
             }
             _current += offset;

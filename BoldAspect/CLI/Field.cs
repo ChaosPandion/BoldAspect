@@ -1,12 +1,12 @@
 using System;
 using System.IO;
-using BoldAspect.CLI.Metadata;
 
 
-namespace BoldAspect.CLI.Metadata
+
+namespace BoldAspect.CLI
 {
     [Flags]
-    enum FieldAttributes : ushort
+    public enum FieldAttributes : ushort
     {
         FieldAccessMask = 0x0007,
         CompilerControlled = 0x0000,
@@ -16,7 +16,6 @@ namespace BoldAspect.CLI.Metadata
         Family = 0x0004,
         FamORAssem = 0x0005,
         Public = 0x0006,
-
         Static = 0x0010,
         InitOnly = 0x0020,
         Literal = 0x0040,
@@ -29,13 +28,18 @@ namespace BoldAspect.CLI.Metadata
         HasFieldRVA = 0x0100,
     }
 
-    class FieldTable : Table<FieldRecord>
+    public interface IField
     {
-        public FieldTable()
-            : base(TableID.Field)
-        {
+        FieldAttributes Flags { get; set; }
+        string Name { get; set; }
+        Blob Signature { get; set; }
+    }
 
-        }
+    public sealed class CLIField : IField
+    {
+        public FieldAttributes Flags { get; set; }
+        public string Name { get; set; }
+        public Blob Signature { get; set; }
     }
 
     struct FieldRecord 
@@ -49,6 +53,7 @@ namespace BoldAspect.CLI.Metadata
         [BlobHeapIndex]
         public uint Signature;
     }
+
     class FieldLayoutTable : Table<FieldLayoutRecord>
     {
         public FieldLayoutTable()

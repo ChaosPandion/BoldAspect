@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BoldAspect.CLI.Metadata;
+
 
 namespace BoldAspect.CLI
 {
+
+
+
     [Flags]
     public enum MethodAttributes : ushort
     {
@@ -66,14 +70,79 @@ namespace BoldAspect.CLI
         Fire = 0x0020,
     }
 
-    public class MethodDefTable : Table<MethodDefRecord>
-    {
-        public MethodDefTable()
-            : base(TableID.MethodDef)
-        {
 
+    [Flags]
+    public enum CallingConventions : byte
+    {        
+        Default = 0x00,
+        Unmanaged_cdecl = 0x01,
+        Unmanaged_sdtcall = 0x02,
+        Unmanaged_thiscall = 0x03,
+        Unmanaged_fastcall = 0x04,
+        VarArg = 0x05,
+        Field = 0x06,
+        LocalVar = 0x07,
+        Property = 0x08,
+        Unmanaged = 0x09,
+        Mask = 0x0f,
+        Generic = 0x10,
+        HasThis = 0x20,
+        ExplicitThis = 0x40,
+        Sentinel = 0x41,
+    }
+
+    public sealed class MethodCollection : Collection<IMethod>
+    {
+
+    }
+
+    public interface IMethod
+    {
+        CallingConventions CallingConventions { get; set; }
+        MethodImplAttributes ImplFlags { get; set; }
+        MethodAttributes Flags { get; set; }
+        string Name { get; set; }
+        ParamCollection Parameters { get; }
+        IModule DeclaringModule { get; set; }
+        MethodEntry MethodEntry { get; set; }
+    }
+
+    public sealed class CLIMethod : IMethod
+    {
+        private readonly ParamCollection _params = new ParamCollection();
+
+        private Blob _sig;
+
+        public MethodEntry MethodEntry { get; set; }
+        public CallingConventions CallingConventions { get; set; }
+        public MethodImplAttributes ImplFlags { get; set; }
+        public MethodAttributes Flags { get; set; }
+        public string Name { get; set; }
+        public ParamCollection Parameters { get { return _params; } }
+
+        internal int GenericParamCount { get; set; }
+
+
+        internal RetType RetType { get; set; }
+
+        internal Blob Signature
+        {
+            get { return _sig; }
+            set
+            {
+                _sig = value;
+            }
+        }
+
+        internal uint ParamListIndex { get; set; }
+        public IModule DeclaringModule { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}({1})", Name, string.Join(", ", _params.Select(p => p.Name)));
         }
     }
+
 
     public struct MethodDefRecord
     {

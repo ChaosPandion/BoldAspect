@@ -22,7 +22,7 @@ namespace BoldAspect
     internal static class AssemblyInfo
     {
         public const string Copyright = "Copyright © Matthew O'Brien 2012";
-        public const string Version = "0.0.2.1";
+        public const string Version = "0.0.3.0";
         public const string Product = "BoldAspect";
 
 #if DEBUG

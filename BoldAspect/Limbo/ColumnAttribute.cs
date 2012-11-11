@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Metadata
+namespace BoldAspect.CLI
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     abstract class ColumnAttribute : Attribute
@@ -15,6 +15,6 @@ namespace BoldAspect.CLI.Metadata
 
         }
 
-        public abstract ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream);
+        //public abstract ulong GetIndex(BinaryReader reader, BoldAspect.CLI.Metadata.MetadataStreams.TableStream stream);
     }
 }
