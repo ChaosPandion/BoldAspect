@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 
 
@@ -28,30 +29,31 @@ namespace BoldAspect.CLI
         HasFieldRVA = 0x0100,
     }
 
+
+    public sealed class FieldCollection : Collection<IField>
+    {
+
+    }
+
     public interface IField
     {
         FieldAttributes Flags { get; set; }
         string Name { get; set; }
-        Blob Signature { get; set; }
+        FieldSignature Signature { get; set; }
+        IModule DeclaringModule { get; set; }
     }
 
     public sealed class CLIField : IField
     {
         public FieldAttributes Flags { get; set; }
         public string Name { get; set; }
-        public Blob Signature { get; set; }
-    }
+        public FieldSignature Signature { get; set; }
+        public IModule DeclaringModule { get; set; }
 
-    struct FieldRecord 
-    {
-        [ConstantColumn(typeof(FieldAttributes))]
-        public FieldAttributes Flags;
-
-        [StringHeapIndex]
-        public uint Name;
-
-        [BlobHeapIndex]
-        public uint Signature;
+        public override string ToString()
+        {
+            return Name ?? "";
+        }
     }
 
     class FieldLayoutTable : Table<FieldLayoutRecord>

@@ -89,6 +89,7 @@ namespace BoldAspect.CLI
                 ReadDefinedTypes(pe, module);
                 ReadDefinedParams(pe, module);
                 ReadDefinedMethods(pe, module);
+                ReadDefinedFields(pe, module);
 
                 var start = module.DefinedMethods.Count - 1;
                 var stopIndex = module.DefinedParams.Count - 1;
@@ -101,25 +102,21 @@ namespace BoldAspect.CLI
                     for (int j = paramStart; j < stopIndex; j++)
                     {
                         var param = module.DefinedParams[j];
+                        try
+                        {
+                            param.Type = method.Signature.Params[j - paramStart].TypeSignature.TypeReference;
+                        }
+                        catch (Exception)
+                        {
+                            // I hate myself
+                        }
                         method.Parameters.Add(param);
                     }
                     stopIndex = paramStart;
-
-
                 }
 
                 foreach (var method in module.DefinedMethods.Cast<CLIMethod>())
                 {
-
-                    using (var sr = new SignatureReader(method.Signature, module))
-                    {
-                        method.CallingConventions = sr.ReadCallingConventions();
-                        if (method.CallingConventions.HasFlag(CallingConventions.Generic))
-                            method.GenericParamCount = sr.ReadCompressedInteger();
-                        var paramCount = sr.ReadCompressedInteger();
-                        method.RetType = sr.ReadRetType();
-                        var paramSigs = sr.ReadParamSigs(paramCount);
-                    }
                 }
 
 
@@ -220,6 +217,24 @@ namespace BoldAspect.CLI
             }
         }
 
+        private static void ReadDefinedFields(PortableExecutable pe, IModule module)
+        {
+            using (var tr = pe.MetadataRoot.CreateTableReader(TableID.Field))
+            {
+                while (tr.NextRow())
+                {
+                    var f = new CLIField();
+                    f.Flags = tr.ReadColumn<FieldAttributes>();
+                    f.Name = tr.ReadColumn<string>();
+                    var sigData = tr.ReadColumn<Blob>();
+                    using (var sr = new SignatureReader(sigData, module))
+                        f.Signature = (FieldSignature)sr.ReadSignature();
+                    f.DeclaringModule = module;
+                    module.DefinedFields.Add(f);
+                }
+            }
+        }
+
         private static void ReadDefinedMethods(PortableExecutable pe, IModule module)
         {
             using (var tr = pe.MetadataRoot.CreateTableReader(TableID.MethodDef))
@@ -232,7 +247,11 @@ namespace BoldAspect.CLI
                     method.ImplFlags = tr.ReadColumn<MethodImplAttributes>();
                     method.Flags = tr.ReadColumn<MethodAttributes>();
                     method.Name = tr.ReadColumn<string>();
-                    method.Signature = tr.ReadColumn<Blob>();
+                    
+                    var sigBlob = tr.ReadColumn<Blob>();
+                    using (var sr = new SignatureReader(sigBlob, module))
+                        method.Signature = (MethodSignature)sr.ReadSignature();
+
                     method.ParamListIndex = tr.ReadColumn<uint>();
                     module.DefinedMethods.Add(method);
                     if (rva == 0)
@@ -241,18 +260,6 @@ namespace BoldAspect.CLI
                     using (var br = methodBodyData.CreateReader())
                     {
                         method.MethodEntry = new MethodEntry((int)rva, br);
-                        //var flags = (int)br.ReadByte();
-                        //var size = 0;
-                        //if ((flags & 3) == 3)
-                        //{
-                        //    var flags2 = br.ReadByte();
-                        //    size = (flags2 & 0xF0);
-                        //}
-                        //else
-                        //{
-                        //    size = (flags & 0xFC) >> 2;
-                        //    flags = (flags & 0x03);
-                        //}
                     }
                 }
             }

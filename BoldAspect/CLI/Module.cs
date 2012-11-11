@@ -12,9 +12,10 @@ namespace BoldAspect.CLI
     {
         string Name { get; set; }
         Guid Guid { get; set; }
-        ParamCollection DefinedParams { get; } 
-        TypeCollection DefinedTypes { get; }
+        ParamCollection DefinedParams { get; }
         MethodCollection DefinedMethods { get; }
+        FieldCollection DefinedFields { get; }
+        TypeCollection DefinedTypes { get; }
         IAssembly Assembly { get; set; }
         
     }
@@ -22,8 +23,9 @@ namespace BoldAspect.CLI
     public sealed class CLIModule : IModule
     {
         private readonly ParamCollection _definedParams = new ParamCollection();
-        private readonly TypeCollection _definedTypes = new TypeCollection();
         private readonly MethodCollection _definedMethods = new MethodCollection();
+        private readonly FieldCollection _definedFields = new FieldCollection();
+        private readonly TypeCollection _definedTypes = new TypeCollection();
 
         public string Name { get; set; }
         public Guid Guid { get; set; }
@@ -36,6 +38,11 @@ namespace BoldAspect.CLI
         public TypeCollection DefinedTypes 
         {
             get { return _definedTypes; }
+        }
+
+        public FieldCollection DefinedFields
+        {
+            get { return _definedFields; }
         }
 
         public MethodCollection DefinedMethods

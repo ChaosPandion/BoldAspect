@@ -19,20 +19,6 @@ namespace BoldAspect.Test
             //const string fileName = @"C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll";
             //const string fileName = @"BoldAspect.dll";
             var assembly = MetadataStorage.ReadAssembly(fileName);
-
-            Console.WriteLine();
-            foreach (var m in assembly.ManifestModule.DefinedMethods)
-            {
-                var cm = (CLIMethod)m;
-                Console.WriteLine(m.Name + " -->");
-                Console.WriteLine("\t" + m.CallingConventions);
-                Console.WriteLine("\t" + cm.Signature.Length);
-                Console.WriteLine("\t" + cm.Signature);
-                Console.WriteLine("\t" + cm.Signature.ToString(16));
-                Console.WriteLine("\t" + cm.Signature.ToString(2));
-                Console.WriteLine();
-                Console.ReadKey(true);
-            }
         }
 
         //static void EX2()

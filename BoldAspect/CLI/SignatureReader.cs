@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,47 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
+
+    public sealed class ParamSignature
+    {
+        private readonly TypeSignatureCollection _customMods = new TypeSignatureCollection();
+
+        public TypeSignature TypeSignature { get; set; }
+
+        public TypeSignatureCollection CustomMods
+        {
+            get { return _customMods; }
+        }
+
+        public override string ToString()
+        {
+            return TypeSignature == null ? "null" : TypeSignature.ToString();
+        }
+    }
+
+
+    public sealed class ParamSignatureCollection : Collection<ParamSignature>
+    {
+
+    }
+
+    public sealed class ReturnTypeSignature
+    {
+        private readonly TypeSignatureCollection _customMods = new TypeSignatureCollection();
+
+        public TypeSignature TypeSignature { get; set; }
+
+        public TypeSignatureCollection CustomMods
+        {
+            get { return _customMods; }
+        }
+
+        public override string ToString()
+        {
+            return TypeSignature == null ? "null" : TypeSignature.ToString();
+        }
+    }
+
     public class SignatureReader : IDisposable
     {
         private readonly Blob _blob;
@@ -23,124 +65,153 @@ namespace BoldAspect.CLI
         public object ReadSignature()
         {
             var cc = _reader.Read<CallingConventions>();
-            switch (cc)
+            if (((int)cc & 0x06) == 0x06)
             {
-                case CallingConventions.Default:
-                    break;
-                case CallingConventions.Unmanaged_cdecl:
-                    break;
-                case CallingConventions.Unmanaged_sdtcall:
-                    break;
-                case CallingConventions.Unmanaged_thiscall:
-                    break;
-                case CallingConventions.Unmanaged_fastcall:
-                    break;
-                case CallingConventions.VarArg:
-                    break;
-                case CallingConventions.Field:
-                    break;
-                case CallingConventions.LocalVar:
-                    break;
-                case CallingConventions.Property:
-                    break;
-                case CallingConventions.Unmanaged:
-                    break;
-                case CallingConventions.Mask:
-                    break;
-                case CallingConventions.Generic:
-                    break;
-                case CallingConventions.HasThis:
-                    break;
-                case CallingConventions.ExplicitThis:
-                    break;
-                case CallingConventions.Sentinel:
-                    break;
-                default:
-                    break;
+                var sig = new FieldSignature();
+                var tsig = default(TypeSignature);
+                do
+                {
+                    if (tsig != null)
+                        sig.CustomMods.Add(tsig);
+                    tsig = ReadType();
+                } while (tsig.ElementType == ElementType.Cmod_opt || tsig.ElementType == ElementType.Cmod_reqd);
+                sig.TypeSignature = tsig;
+                return sig;
             }
-            return null;
+            else if (((int)cc & 0x07) == 0x07)
+            {
+                return null;
+            }
+            else if (((int)cc & 0x08) == 0x08)
+            {
+                return null;
+            }
+            else
+            {
+                var sig = new MethodSignature();
+                sig.CallingConventions = cc;
+                if ((cc & CallingConventions.Generic) != 0)
+                    sig.GenParamCount = (uint)_reader.ReadBigEndianCompressedInteger();
+                var paramCount = _reader.ReadBigEndianCompressedInteger();
+                sig.ReturnType = ReadReturnType();
+                for (int i = 0; i < paramCount; i++)
+                    sig.Params.Add(ReadParam());
+                return sig;
+            }
         }
 
-        public ITypeRef ReadType()
+        public ReturnTypeSignature ReadReturnType()
+        {
+            var sig = new ReturnTypeSignature();
+            var tsig = default(TypeSignature);
+            do
+            {
+                if (tsig != null)
+                    sig.CustomMods.Add(tsig);
+                tsig = ReadType();
+            } while (tsig != null && (tsig.ElementType == ElementType.Cmod_opt || tsig.ElementType == ElementType.Cmod_reqd));
+            sig.TypeSignature = tsig;
+            return sig;
+        }
+
+        public ParamSignature ReadParam()
+        {
+            var sig = new ParamSignature();
+            var tsig = default(TypeSignature);
+            do
+            {
+                if (tsig != null)
+                    sig.CustomMods.Add(tsig);
+                tsig = ReadType();
+            } while (tsig != null && (tsig.ElementType == ElementType.Cmod_opt || tsig.ElementType == ElementType.Cmod_reqd));
+            sig.TypeSignature = tsig;
+            return sig;
+        }
+
+        public TypeSignature ReadType()
         {
             var type = (ElementType)_reader.ReadByte();
             switch (type)
             {
                 case ElementType.Void:
-                    return MetadataStorage.GetTypeRef(typeof(void));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(void)));
                 case ElementType.Boolean:
-                    return MetadataStorage.GetTypeRef(typeof(bool));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(bool)));
                 case ElementType.Char:
-                    return MetadataStorage.GetTypeRef(typeof(char));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(char)));
                 case ElementType.I1:
-                    return MetadataStorage.GetTypeRef(typeof(sbyte));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(sbyte)));
                 case ElementType.U1:
-                    return MetadataStorage.GetTypeRef(typeof(byte));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(byte)));
                 case ElementType.I2:
-                    return MetadataStorage.GetTypeRef(typeof(short));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(short)));
                 case ElementType.U2:
-                    return MetadataStorage.GetTypeRef(typeof(ushort));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(ushort)));
                 case ElementType.I4:
-                    return MetadataStorage.GetTypeRef(typeof(int));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(int)));
                 case ElementType.U4:
-                    return MetadataStorage.GetTypeRef(typeof(uint));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(uint)));
                 case ElementType.I8:
-                    return MetadataStorage.GetTypeRef(typeof(long));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(long)));
                 case ElementType.U8:
-                    return MetadataStorage.GetTypeRef(typeof(ulong));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(ulong)));
                 case ElementType.R4:
-                    return MetadataStorage.GetTypeRef(typeof(float));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(float)));
                 case ElementType.R8:
-                    return MetadataStorage.GetTypeRef(typeof(double));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(double)));
                 case ElementType.String:
-                    return MetadataStorage.GetTypeRef(typeof(string));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(string)));
                 case ElementType.Ptr:
                     return ReadType();
                 case ElementType.Byref:
                     return ReadType();
                 case ElementType.Valuetype:
                 case ElementType.Class:
-                    var token = ReadCompressedToken();
-                    switch ((token.Value & 0xFF000000) >> 24)
+                case ElementType.Cmod_opt:
+                case ElementType.Cmod_reqd:
                     {
-                        case 0:
-                            {
-                                var d = _module.DefinedTypes[(int)(token.Value & 0x00FFFFFF)];
-                                var r = new CLITypeRef();
-                                r.Token = new MetadataToken(1);
-                                r.Name = d.Name;
-                                r.NameSpace = d.NameSpace;
-                                return r;
-                            }
-                        case 1:
-                            throw new Exception();
-                        case 2:
-                            throw new Exception();
-                        default:
-                            throw new Exception();
+                        var token = ReadCompressedToken();
+                        switch ((token.Value & 0xFF000000) >> 24)
+                        {
+                            case 0:
+                                {
+                                    var d = _module.DefinedTypes[(int)(token.Value & 0x00FFFFFF)];
+                                    var r = new CLITypeRef();
+                                    r.Token = new MetadataToken(1);
+                                    r.Name = d.Name;
+                                    r.NameSpace = d.NameSpace;
+                                    return new TypeSignature() { ElementType = type, TypeReference = r };
+                                }
+                            case 1:
+                                throw new Exception();
+                            case 2:
+                                throw new Exception();
+                            default:
+                                throw new Exception();
+                        }
                     }
                 case ElementType.Var:
-                    throw new Exception();
+                    return new TypeSignature();
                 case ElementType.Array:
-                    throw new Exception();
+                    return new TypeSignature();
                 case ElementType.Genericinst:
-                    throw new Exception();
+                    return new TypeSignature();
                 case ElementType.Typedbyref:
-                    return MetadataStorage.GetTypeRef(typeof(TypedReference));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(TypedReference)));
                 case ElementType.I:
-                    return MetadataStorage.GetTypeRef(typeof(IntPtr));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(IntPtr)));
                 case ElementType.U:
-                    return MetadataStorage.GetTypeRef(typeof(UIntPtr));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(UIntPtr)));
                 case ElementType.Fnptr:
-                    throw new Exception();
+                    return new TypeSignature();
                 case ElementType.Object:
-                    return MetadataStorage.GetTypeRef(typeof(object));
+                    return new TypeSignature(type, MetadataStorage.GetTypeRef(typeof(object)));
                 case ElementType.Szarray:
-                    throw new Exception();
+                    return new TypeSignature();
                 case ElementType.Mvar:
-                    throw new Exception();
+                    return new TypeSignature();
                 default:
-                    throw new Exception();
+                    return new TypeSignature();
             }
         }
 
@@ -152,25 +223,6 @@ namespace BoldAspect.CLI
         public int ReadCompressedInteger()
         {
             return _reader.ReadBigEndianCompressedInteger();
-        }
-
-        public RetType ReadRetType()
-        {
-            var cms = ReadCustomMods();
-            var type = ReadType();
-            return new RetType(cms, type);
-        }
-
-        public IReadOnlyCollection<ParamSig> ReadParamSigs(int count)
-        {
-            var list = new List<ParamSig>();
-            for (int i = 0; i < count; i++)
-            {
-                var cms = ReadCustomMods();
-                var t = ReadType();
-                list.Add(new ParamSig(cms, t));
-            }
-            return list.AsReadOnly();
         }
 
         public CustomModCollection ReadCustomMods()
