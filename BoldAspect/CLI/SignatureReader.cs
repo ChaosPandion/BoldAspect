@@ -91,8 +91,8 @@ namespace BoldAspect.CLI
                 var sig = new MethodSignature();
                 sig.CallingConventions = cc;
                 if ((cc & CallingConventions.Generic) != 0)
-                    sig.GenParamCount = (uint)_reader.ReadBigEndianCompressedInteger();
-                var paramCount = _reader.ReadBigEndianCompressedInteger();
+                    sig.GenParamCount = _reader.ReadCompressedUInt32();
+                var paramCount = _reader.ReadCompressedUInt32();
                 sig.ReturnType = ReadReturnType();
                 for (int i = 0; i < paramCount; i++)
                     sig.Params.Add(ReadParam());
@@ -218,11 +218,6 @@ namespace BoldAspect.CLI
         public CallingConventions ReadCallingConventions()
         {
             return _reader.Read<CallingConventions>();
-        }
-
-        public int ReadCompressedInteger()
-        {
-            return _reader.ReadBigEndianCompressedInteger();
         }
 
         public CustomModCollection ReadCustomMods()

@@ -53,7 +53,6 @@
     <Compile Include="BlobReader.cs" />
     <Compile Include="CLI\MetadataStorage.cs" />
     <Compile Include="CLI\HeapSizeFlags.cs" />
-    <Compile Include="CLI\BlobHeap.cs" />
     <Compile Include="CLI\SignatureReader.cs" />
     <Compile Include="CLI\TableReader.cs" />
     <Compile Include="CLI\Method.cs" />

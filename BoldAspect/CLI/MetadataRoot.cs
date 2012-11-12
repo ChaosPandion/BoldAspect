@@ -247,9 +247,9 @@ namespace BoldAspect.CLI
             using (var br = _blobHeap.CreateReader())
             {
                 br.Seek((int)index);
-                var length = br.ReadBigEndianCompressedInteger();
-                var data = br.ReadBytes(length);
-                return new Blob(data, 0, length);
+                int offset;
+                var length = br.ReadCompressedUInt32(out offset);
+                return new Blob(_blobHeap.Data, (int)_blobHeap.Offset + (int)index + offset, (int)length);
             }
         }
 
@@ -274,8 +274,8 @@ namespace BoldAspect.CLI
             using (var br = _userStringHeap.CreateReader())
             {
                 br.Seek((int)index);
-                var length = br.ReadBigEndianCompressedInteger();
-                return br.ReadUTF16String(length);
+                var length = br.ReadCompressedUInt32();
+                return br.ReadUTF16String((int)length);
             }
         }
 

@@ -77,32 +77,15 @@ namespace BoldAspect
             return result;
         }
 
-        public int ReadBigEndianCompressedInteger()
+        public uint ReadCompressedUInt32()
         {
-            var result = 0;
-            var offset = 0;
-            var index = Index;
-            var data = _data;
-            var b1 = data[(int)index];
-            if ((b1 & 0xC0) == 0xC0)
-            {
-                result |= (b1 & ~0xC0) << 24;
-                result |= data[(int)index + 1] << 16;
-                result |= data[(int)index + 2] << 8;
-                result |= data[(int)index + 3];
-                offset = 4;
-            }
-            else if ((b1 & 0x80) == 0x80)
-            {
-                result |= data[(int)index + 1];
-                result |= (b1 & ~0x80) << 8;
-                offset = 2;
-            }
-            else
-            {
-                result = b1;
-                offset = 1;
-            }
+            int offset;
+            return ReadCompressedUInt32(out offset);
+        }
+
+        public uint ReadCompressedUInt32(out int offset)
+        {
+            var result = _data.ReadCompressedUInt32(Index, out offset);
             _current += offset;
             return result;
         }
