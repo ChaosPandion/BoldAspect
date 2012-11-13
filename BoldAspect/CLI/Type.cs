@@ -44,98 +44,98 @@ namespace BoldAspect.CLI
         IsTypeForwarder = 0x00200000,
     }
 
-    public interface IType
-    {
-        IModule DeclaringModule { get; set; }
-        TypeAttributes Attributes { get; set; }
-        string Name { get; set; }
-        string NameSpace { get; set; }
-        ITypeRef BaseType { get; set; }
-        ITypeRef DeclaringType { get; set; }
-        FieldCollection Fields { get; }
-        MethodCollection Methods { get; }
-    }
+    //public interface IType
+    //{
+    //    IModule DeclaringModule { get; set; }
+    //    TypeAttributes Attributes { get; set; }
+    //    string Name { get; set; }
+    //    string NameSpace { get; set; }
+    //    ITypeRef BaseType { get; set; }
+    //    ITypeRef DeclaringType { get; set; }
+    //    FieldCollection Fields { get; }
+    //    MethodCollection Methods { get; }
+    //}
 
-    public sealed class TypeCollection : Collection<IType>
-    {
+    //public sealed class TypeCollection : Collection<IType>
+    //{
 
-    }
+    //}
 
-    public sealed class CLIType : IType
-    {
-        private readonly MethodCollection _methods = new MethodCollection();
-        private readonly FieldCollection _fields = new FieldCollection();
+    //public sealed class CLIType : IType
+    //{
+    //    private readonly MethodCollection _methods = new MethodCollection();
+    //    private readonly FieldCollection _fields = new FieldCollection();
 
-        public TypeAttributes Attributes { get; set; }
-        public string Name { get; set; }
-        public string NameSpace { get; set; }
-        public IModule DeclaringModule { get; set; }
-        public ITypeRef BaseType { get; set; }
-        public ITypeRef DeclaringType { get; set; }
+    //    public TypeAttributes Attributes { get; set; }
+    //    public string Name { get; set; }
+    //    public string NameSpace { get; set; }
+    //    public IModule DeclaringModule { get; set; }
+    //    public ITypeRef BaseType { get; set; }
+    //    public ITypeRef DeclaringType { get; set; }
 
-        public FieldCollection Fields
-        {
-            get { return _fields; }
-        }
+    //    public FieldCollection Fields
+    //    {
+    //        get { return _fields; }
+    //    }
 
-        public MethodCollection Methods 
-        {
-            get { return _methods; }
-        }
+    //    public MethodCollection Methods 
+    //    {
+    //        get { return _methods; }
+    //    }
 
-        internal MetadataToken ExtendsToken { get; set; }
-        internal uint FieldListIndex { get; set; }
-        internal uint MethodListIndex { get; set; }
+    //    internal MetadataToken ExtendsToken { get; set; }
+    //    internal uint FieldListIndex { get; set; }
+    //    internal uint MethodListIndex { get; set; }
 
-        public override string ToString()
-        {
-            return Name;
-        }
-
-
-    }
-
-    public interface ITypeRef
-    {
-        MetadataToken Token { get; set; }
-        string Name { get; set; }
-        string NameSpace { get; set; }
-    }
+    //    public override string ToString()
+    //    {
+    //        return Name;
+    //    }
 
 
-    public sealed class TypeRefCollection : Collection<ITypeRef>
-    {
+    //}
 
-    }
+    //public interface ITypeRef
+    //{
+    //    MetadataToken Token { get; set; }
+    //    string Name { get; set; }
+    //    string NameSpace { get; set; }
+    //}
 
-    public sealed class CLITypeRef : ITypeRef
-    {
-        public MetadataToken Token { get; set; }
-        public string Name { get; set; }
-        public string NameSpace { get; set; }
 
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
+    //public sealed class TypeRefCollection : Collection<ITypeRef>
+    //{
 
-    public struct TypeRefToken
-    {
-        public readonly ResolutionScope Scope;
-        public readonly uint Index;
+    //}
 
-        public TypeRefToken(ResolutionScope scope, uint index)
-        {
-            Scope = scope;
-            Index = index;
-        }
+    //public sealed class CLITypeRef : ITypeRef
+    //{
+    //    public MetadataToken Token { get; set; }
+    //    public string Name { get; set; }
+    //    public string NameSpace { get; set; }
 
-        public override string ToString()
-        {
-            return string.Format("{0}(0x{1:X4})", Scope, Index);
-        }
-    }
+    //    public override string ToString()
+    //    {
+    //        return Name;
+    //    }
+    //}
+
+    //public struct TypeRefToken
+    //{
+    //    public readonly ResolutionScope Scope;
+    //    public readonly uint Index;
+
+    //    public TypeRefToken(ResolutionScope scope, uint index)
+    //    {
+    //        Scope = scope;
+    //        Index = index;
+    //    }
+
+    //    public override string ToString()
+    //    {
+    //        return string.Format("{0}(0x{1:X4})", Scope, Index);
+    //    }
+    //}
 
     //struct TypeDefRecord
     //{

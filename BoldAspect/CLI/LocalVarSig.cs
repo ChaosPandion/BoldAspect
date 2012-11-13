@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-    public sealed class LocalVarSig
-    {
-        public int VariableCount { get; set; }
-        public CustomMod CustomMod { get; set; }
+    //public sealed class LocalVarSig
+    //{
+    //    public int VariableCount { get; set; }
+    //    public CustomMod CustomMod { get; set; }
 
-    }
+    //}
 }

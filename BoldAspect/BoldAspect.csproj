@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLI\CLIMetadata.cs" />
+    <Compile Include="CLI\MetadataToken.cs" />
     <Compile Include="CLI\Table.cs" />
     <Compile Include="CLI\Tables.cs" />
     <Compile Include="IO\Primitives.cs" />

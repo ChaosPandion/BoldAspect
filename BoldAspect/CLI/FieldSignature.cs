@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-    public sealed class FieldSignature
-    {
-        private readonly TypeSignatureCollection _customMods = new TypeSignatureCollection();
+    //public sealed class FieldSignature
+    //{
+    //    private readonly TypeSignatureCollection _customMods = new TypeSignatureCollection();
 
-        public TypeSignature TypeSignature { get; set; }
+    //    public TypeSignature TypeSignature { get; set; }
 
-        public TypeSignatureCollection CustomMods
-        {
-            get { return _customMods; }
-        }
+    //    public TypeSignatureCollection CustomMods
+    //    {
+    //        get { return _customMods; }
+    //    }
 
-        public override string ToString()
-        {
-            return TypeSignature == null ? "null" : TypeSignature.ToString();
-        }
-    }
+    //    public override string ToString()
+    //    {
+    //        return TypeSignature == null ? "null" : TypeSignature.ToString();
+    //    }
+    //}
 }

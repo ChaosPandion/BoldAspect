@@ -16,31 +16,31 @@ namespace BoldAspect.CLI
         Unused = 0xcfe0,
     }
 
-    public interface IParam
-    {
-        ParamAttributes Flags { get; set; }
-        int Sequence { get; set; }
-        string Name { get; set; }
-        ITypeRef Type { get; set; }
-        IModule DeclaringModule { get; set; }
-    }
+    //public interface IParam
+    //{
+    //    ParamAttributes Flags { get; set; }
+    //    int Sequence { get; set; }
+    //    string Name { get; set; }
+    //    ITypeRef Type { get; set; }
+    //    IModule DeclaringModule { get; set; }
+    //}
 
-    public sealed class CLIParam : IParam
-    {
-        public ParamAttributes Flags { get; set; }
-        public int Sequence { get; set; }
-        public string Name { get; set; }
-        public ITypeRef Type { get; set; }
-        public IModule DeclaringModule { get; set; }
+    //public sealed class CLIParam : IParam
+    //{
+    //    public ParamAttributes Flags { get; set; }
+    //    public int Sequence { get; set; }
+    //    public string Name { get; set; }
+    //    public ITypeRef Type { get; set; }
+    //    public IModule DeclaringModule { get; set; }
 
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
+    //    public override string ToString()
+    //    {
+    //        return Name;
+    //    }
+    //}
 
-    public sealed class ParamCollection : Collection<IParam>
-    {
+    //public sealed class ParamCollection : Collection<IParam>
+    //{
 
-    }
+    //}
 }

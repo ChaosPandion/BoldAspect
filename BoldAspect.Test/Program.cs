@@ -13,7 +13,14 @@ namespace BoldAspect.Test
     {
         static void Main(string[] args)
         {
-            BuildAssembly();
+            Build();
+        }
+
+        static void Build()
+        {
+            //const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll";
+            const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\System.Core.dll";
+            var module = CLIModule.Load(fileName);
         }
 
         static void ReadPE()
@@ -22,10 +29,14 @@ namespace BoldAspect.Test
             var pe = new PortableExecutable(fileName);
         }
 
-        static void BuildAssembly()
+        static void BuildMapping()
         {
-            const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll";
-            var assembly = MetadataStorage.ReadAssembly(fileName);
+            var sb = new StringBuilder();
+            foreach (var n in Enum.GetNames(typeof(TableID)))
+            {
+                sb.AppendFormat("public sealed class CLI{0}\r\n{{\r\nprivate readonly CLIMetadata _metadata;\r\n\r\ninternal CLI{0}(CLIMetadata metadata)\r\n{{\r\n_metadata = metadata;\r\n}}\r\n}}\r\n\r\n", n);
+            }
+            Debug.Write(sb);
         }
 
         static void CodedIndexes()

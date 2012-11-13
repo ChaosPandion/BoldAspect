@@ -30,10 +30,10 @@ namespace BoldAspect.CLI
     }
 
 
-    public sealed class FieldCollection : Collection<IField>
-    {
+    //public sealed class FieldCollection : Collection<IField>
+    //{
 
-    }
+    //}
 
     //public struct FieldRecord
     //{
@@ -42,30 +42,30 @@ namespace BoldAspect.CLI
     //    public uint Signature;
     //}
 
-    public interface IField
-    {
-        FieldAttributes Flags { get; set; }
-        string Name { get; set; }
-        ITypeRef DeclaringType { get; set; }
-        FieldSignature Signature { get; set; }
-        IModule DeclaringModule { get; set; }
-        int FieldOffset { get; set; }
-    }
+    //public interface IField
+    //{
+    //    FieldAttributes Flags { get; set; }
+    //    string Name { get; set; }
+    //    ITypeRef DeclaringType { get; set; }
+    //    FieldSignature Signature { get; set; }
+    //    IModule DeclaringModule { get; set; }
+    //    int FieldOffset { get; set; }
+    //}
 
-    public sealed class CLIField : IField
-    {
-        public FieldAttributes Flags { get; set; }
-        public string Name { get; set; }
-        public ITypeRef DeclaringType { get; set; }
-        public FieldSignature Signature { get; set; }
-        public IModule DeclaringModule { get; set; }
-        public int FieldOffset { get; set; }
+    //public sealed class CLIField : IField
+    //{
+    //    public FieldAttributes Flags { get; set; }
+    //    public string Name { get; set; }
+    //    public ITypeRef DeclaringType { get; set; }
+    //    public FieldSignature Signature { get; set; }
+    //    public IModule DeclaringModule { get; set; }
+    //    public int FieldOffset { get; set; }
 
-        public override string ToString()
-        {
-            return Name ?? "";
-        }
-    }
+    //    public override string ToString()
+    //    {
+    //        return Name ?? "";
+    //    }
+    //}
 
     //class FieldLayoutTable : Table<FieldLayoutRecord>
     //{

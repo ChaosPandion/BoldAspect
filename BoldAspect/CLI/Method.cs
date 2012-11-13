@@ -91,42 +91,53 @@ namespace BoldAspect.CLI
         //Sentinel = 0x41,
     }
 
-    public sealed class MethodCollection : Collection<IMethod>
-    {
+    //public sealed class MethodCollection : Collection<IMethod>
+    //{
 
-    }
+    //}
 
-    public interface IMethod
-    {
-        MethodSignature Signature { get; set; }
-        MethodImplAttributes ImplFlags { get; set; }
-        MethodAttributes Flags { get; set; }
-        string Name { get; set; }
-        ParamCollection Parameters { get; }
-        IModule DeclaringModule { get; set; }
-        MethodEntry MethodEntry { get; set; }
-    }
+    //public interface IMethod
+    //{
+    //    MethodSignature Signature { get; set; }
+    //    MethodImplAttributes ImplFlags { get; set; }
+    //    MethodAttributes Flags { get; set; }
+    //    string Name { get; set; }
+    //    ParamCollection Parameters { get; }
+    //    IModule DeclaringModule { get; set; }
+    //    MethodEntry MethodEntry { get; set; }
+    //}
 
-    public sealed class CLIMethod : IMethod
-    {
-        private readonly ParamCollection _params = new ParamCollection();
+    //public sealed class CLIMethod : IMethod
+    //{
+    //    private readonly ParamCollection _params = new ParamCollection();
 
 
-        public MethodSignature Signature { get; set; }
-        public MethodEntry MethodEntry { get; set; }
-        public CallingConventions CallingConventions { get; set; }
-        public MethodImplAttributes ImplFlags { get; set; }
-        public MethodAttributes Flags { get; set; }
-        public string Name { get; set; }
-        public ParamCollection Parameters { get { return _params; } }
-        internal uint ParamListIndex { get; set; }
-        public IModule DeclaringModule { get; set; }
+    //    public MethodSignature Signature { get; set; }
+    //    public MethodEntry MethodEntry { get; set; }
+    //    public CallingConventions CallingConventions { get; set; }
+    //    public MethodImplAttributes ImplFlags { get; set; }
+    //    public MethodAttributes Flags { get; set; }
+    //    public string Name { get; set; }
+    //    public ParamCollection Parameters { get { return _params; } }
+    //    internal uint ParamListIndex { get; set; }
+    //    public IModule DeclaringModule { get; set; }
 
-        public override string ToString()
-        {
-            return string.Format("{0}({1})", Name, string.Join(", ", _params.Select(p => p.Name)));
-        }
-    }
+    //    public static IMethod FromRecord(MetadataRoot metadata, int index)
+    //    {
+    //        var table = metadata.GetTable<MethodDefTable>(TableID.MethodDef);
+    //        var record = table[index];
+    //        var result = new CLIMethod();
+    //        result.Name = metadata.GetString(record.Name);
+
+
+    //        return result;
+    //    }
+
+    //    public override string ToString()
+    //    {
+    //        return string.Format("{0}({1})", Name, string.Join(", ", _params.Select(p => p.Name)));
+    //    }
+    //}
 
 
     //public struct MethodDefRecord
