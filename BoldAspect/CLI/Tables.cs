@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-
+    
     public enum Index
     {
         None = -1,
@@ -75,9 +75,138 @@ namespace BoldAspect.CLI
 
     public sealed class Indexes
     {
-        private static readonly int _indexCount = Enum.GetValues(typeof(Index)).Length;
+        private static readonly int _indexCount = Enum.GetValues(typeof(Index)).Length - 1;
         private readonly int[] _indexWidths = new int[_indexCount];
         private readonly bool[] _setIndexes = new bool[_indexCount];
+
+        public Indexes()
+        {
+            for (int i = 0; i < _indexWidths.Length; i++)
+            {
+                _indexWidths[i] = 2;
+            }
+        }
+
+        public void SetWidth(TableID table, int width)
+        {
+            switch (table)
+            {
+                case TableID.Module:
+                    SetWidth(Index.Module, width);
+                    break;
+                case TableID.TypeRef:
+                    SetWidth(Index.TypeRef, width);
+                    break;
+                case TableID.TypeDef:
+                    SetWidth(Index.TypeDef, width);
+                    break;
+                case TableID.Field:
+                    SetWidth(Index.Field, width);
+                    break;
+                case TableID.MethodDef:
+                    SetWidth(Index.MethodDef, width);
+                    break;
+                case TableID.Param:
+                    SetWidth(Index.Param, width);
+                    break;
+                case TableID.InterfaceImpl:
+                    SetWidth(Index.InterfaceImpl, width);
+                    break;
+                case TableID.MemberRef:
+                    SetWidth(Index.MemberRef, width);
+                    break;
+                case TableID.Constant:
+                    SetWidth(Index.Constant, width);
+                    break;
+                case TableID.CustomAttribute:
+                    SetWidth(Index.CustomAttribute, width);
+                    break;
+                case TableID.FieldMarshal:
+                    SetWidth(Index.FieldMarshal, width);
+                    break;
+                case TableID.DeclSecurity:
+                    SetWidth(Index.DeclSecurity, width);
+                    break;
+                case TableID.ClassLayout:
+                    SetWidth(Index.ClassLayout, width);
+                    break;
+                case TableID.FieldLayout:
+                    SetWidth(Index.FieldLayout, width);
+                    break;
+                case TableID.StandAloneSig:
+                    SetWidth(Index.StandAloneSig, width);
+                    break;
+                case TableID.EventMap:
+                    SetWidth(Index.EventMap, width);
+                    break;
+                case TableID.Event:
+                    SetWidth(Index.Event, width);
+                    break;
+                case TableID.PropertyMap:
+                    SetWidth(Index.PropertyMap, width);
+                    break;
+                case TableID.Property:
+                    SetWidth(Index.Property, width);
+                    break;
+                case TableID.MethodSemantics:
+                    SetWidth(Index.MethodSemantics, width);
+                    break;
+                case TableID.MethodImpl:
+                    SetWidth(Index.MethodImpl, width);
+                    break;
+                case TableID.ModuleRef:
+                    SetWidth(Index.ModuleRef, width);
+                    break;
+                case TableID.TypeSpec:
+                    SetWidth(Index.TypeSpec, width);
+                    break;
+                case TableID.ImplMap:
+                    SetWidth(Index.ImplMap, width);
+                    break;
+                case TableID.FieldRVA:
+                    SetWidth(Index.FieldRVA, width);
+                    break;
+                case TableID.Assembly:
+                    SetWidth(Index.Assembly, width);
+                    break;
+                case TableID.AssemblyProcessor:
+                    SetWidth(Index.AssemblyProcessor, width);
+                    break;
+                case TableID.AssemblyOS:
+                    SetWidth(Index.AssemblyOS, width);
+                    break;
+                case TableID.AssemblyRef:
+                    SetWidth(Index.AssemblyRef, width);
+                    break;
+                case TableID.AssemblyRefProcessor:
+                    SetWidth(Index.AssemblyRefProcessor, width);
+                    break;
+                case TableID.AssemblyRefOS:
+                    SetWidth(Index.AssemblyRefOS, width);
+                    break;
+                case TableID.File:
+                    SetWidth(Index.File, width);
+                    break;
+                case TableID.ExportedType:
+                    SetWidth(Index.ExportedType, width);
+                    break;
+                case TableID.ManifestResource:
+                    SetWidth(Index.ManifestResource, width);
+                    break;
+                case TableID.NestedClass:
+                    SetWidth(Index.NestedClass, width);
+                    break;
+                case TableID.GenericParam:
+                    SetWidth(Index.GenericParam, width);
+                    break;
+                case TableID.MethodSpec:
+                    SetWidth(Index.MethodSpec, width);
+                    break;
+                case TableID.GenericParamConstraint:
+                    SetWidth(Index.GenericParamConstraint, width);
+                    break;
+            }
+        }
 
         public void SetWidth(Index index, int width)
         {
@@ -89,6 +218,7 @@ namespace BoldAspect.CLI
         {
             return _indexWidths[(int)index];
         }
+        
     }
 
     public sealed class ColumnSchema
@@ -108,11 +238,41 @@ namespace BoldAspect.CLI
         }
     }
 
-    public abstract class Table<TRecord> : Collection<TRecord>
+    public interface ITable
+    {
+        int RowCount { get; set; }
+        int FileIndex { get; set; }
+        int RowWidth { get; }
+        void Populate(BlobReader reader);
+    }
+
+    public abstract class Table<TRecord> : Collection<TRecord>, ITable
     {
         internal Indexes Indexes { get; private set; }
         public TableID TableID { get; private set; }
         internal ColumnSchema[] Schema { get; private set; }
+        public int RowCount { get; set; }
+        public int FileIndex { get; set; }
+
+        public int RowWidth
+        {
+            get
+            {
+                var r = 0;
+                foreach (var c in Schema)
+                {
+                    if (c.Index != Index.None)
+                    {
+                        r += Indexes.GetWidth(c.Index);
+                    }
+                    else
+                    {
+                        r += Marshal.SizeOf(c.Type);
+                    }
+                }
+                return r;
+            }
+        }
 
         protected Table(Indexes indexes, TableID tableID, ColumnSchema[] schema)
         {
@@ -121,9 +281,9 @@ namespace BoldAspect.CLI
             Schema = schema;
         }
 
-        internal void Populate(int rowCount, BlobReader reader)
+        void ITable.Populate(BlobReader reader)
         {
-            for (int i = 0; i < rowCount; i++)
+            for (int i = 0; i < RowCount; i++)
             {
                 Add(Read(reader));
             }
@@ -148,7 +308,12 @@ namespace BoldAspect.CLI
     public sealed class ModuleTable : Table<ModuleTable.ModuleRecord>
     {
         public ModuleTable(Indexes indexes)
-            : base(indexes, TableID.Module, new[] { new ColumnSchema(typeof(ushort), Index.None), new ColumnSchema(typeof(uint), Index.String), new ColumnSchema(typeof(uint), Index.Guid), new ColumnSchema(typeof(uint), Index.Guid), new ColumnSchema(typeof(uint), Index.Guid) })
+            : base(indexes, TableID.Module, new[] { 
+                new ColumnSchema(typeof(ushort), Index.None), 
+                new ColumnSchema(typeof(uint), Index.String), 
+                new ColumnSchema(typeof(uint), Index.Guid), 
+                new ColumnSchema(typeof(uint), Index.Guid), 
+                new ColumnSchema(typeof(uint), Index.Guid) })
         {
 
         }
@@ -156,29 +321,32 @@ namespace BoldAspect.CLI
         protected override ModuleRecord Read(BlobReader reader)
         {
             var record = new ModuleRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.Guid, reader);
-            record.Column3 = ReadIndex(Index.Guid, reader);
-            record.Column4 = ReadIndex(Index.Guid, reader);
+            record.Generation = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
+            record.Mvid = ReadIndex(Index.Guid, reader);
+            record.EncId = ReadIndex(Index.Guid, reader);
+            record.EncBaseId = ReadIndex(Index.Guid, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ModuleRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
-            public uint Column4;
+            public ushort Generation;
+            public uint Name;
+            public uint Mvid;
+            public uint EncId;
+            public uint EncBaseId;
         }
     }
 
     public sealed class TypeRefTable : Table<TypeRefTable.TypeRefRecord>
     {
         public TypeRefTable(Indexes indexes)
-            : base(indexes, TableID.TypeRef, new[] { new ColumnSchema(typeof(uint), Index.ResolutionScope), new ColumnSchema(typeof(uint), Index.String), new ColumnSchema(typeof(uint), Index.String) })
+            : base(indexes, TableID.TypeRef, new[] { 
+                new ColumnSchema(typeof(uint), Index.ResolutionScope), 
+                new ColumnSchema(typeof(uint), Index.String), 
+                new ColumnSchema(typeof(uint), Index.String) })
         {
 
         }
@@ -186,18 +354,18 @@ namespace BoldAspect.CLI
         protected override TypeRefRecord Read(BlobReader reader)
         {
             var record = new TypeRefRecord();
-            record.Column0 = ReadIndex(Index.ResolutionScope, reader);
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.String, reader);
+            record.ResolutionScope = ReadIndex(Index.ResolutionScope, reader);
+            record.TypeName = ReadIndex(Index.String, reader);
+            record.TypeNamespace = ReadIndex(Index.String, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct TypeRefRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint ResolutionScope;
+            public uint TypeName;
+            public uint TypeNamespace;
         }
     }
 
@@ -212,24 +380,24 @@ namespace BoldAspect.CLI
         protected override TypeDefRecord Read(BlobReader reader)
         {
             var record = new TypeDefRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.String, reader);
-            record.Column3 = ReadIndex(Index.TypeDefOrRef, reader);
-            record.Column4 = ReadIndex(Index.Field, reader);
-            record.Column5 = ReadIndex(Index.MethodDef, reader);
+            record.Flags = reader.ReadUInt32();
+            record.TypeName = ReadIndex(Index.String, reader);
+            record.TypeNamespace = ReadIndex(Index.String, reader);
+            record.Extends = ReadIndex(Index.TypeDefOrRef, reader);
+            record.FieldList = ReadIndex(Index.Field, reader);
+            record.MethodList = ReadIndex(Index.MethodDef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct TypeDefRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
-            public uint Column4;
-            public uint Column5;
+            public uint Flags;
+            public uint TypeName;
+            public uint TypeNamespace;
+            public uint Extends;
+            public uint FieldList;
+            public uint MethodList;
         }
     }
 
@@ -244,18 +412,18 @@ namespace BoldAspect.CLI
         protected override FieldRecord Read(BlobReader reader)
         {
             var record = new FieldRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Flags = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
+            record.Signature = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct FieldRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort Flags;
+            public uint Name;
+            public uint Signature;
         }
     }
 
@@ -270,24 +438,24 @@ namespace BoldAspect.CLI
         protected override MethodDefRecord Read(BlobReader reader)
         {
             var record = new MethodDefRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt16();
-            record.Column2 = reader.ReadUInt16();
-            record.Column3 = ReadIndex(Index.String, reader);
-            record.Column4 = ReadIndex(Index.Blob, reader);
-            record.Column5 = ReadIndex(Index.Param, reader);
+            record.RVA = reader.ReadUInt32();
+            record.ImplFlags = reader.ReadUInt16();
+            record.Flags = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
+            record.Signature = ReadIndex(Index.Blob, reader);
+            record.ParamList = ReadIndex(Index.Param, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MethodDefRecord
         {
-            public uint Column0;
-            public ushort Column1;
-            public ushort Column2;
-            public uint Column3;
-            public uint Column4;
-            public uint Column5;
+            public uint RVA;
+            public ushort ImplFlags;
+            public ushort Flags;
+            public uint Name;
+            public uint Signature;
+            public uint ParamList;
         }
     }
 
@@ -302,18 +470,18 @@ namespace BoldAspect.CLI
         protected override ParamRecord Read(BlobReader reader)
         {
             var record = new ParamRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = reader.ReadUInt16();
-            record.Column2 = ReadIndex(Index.String, reader);
+            record.Flags = reader.ReadUInt16();
+            record.Sequence = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ParamRecord
         {
-            public ushort Column0;
-            public ushort Column1;
-            public uint Column2;
+            public ushort Flags;
+            public ushort Sequence;
+            public uint Name;
         }
     }
 
@@ -328,16 +496,16 @@ namespace BoldAspect.CLI
         protected override InterfaceImplRecord Read(BlobReader reader)
         {
             var record = new InterfaceImplRecord();
-            record.Column0 = ReadIndex(Index.TypeDef, reader);
-            record.Column1 = ReadIndex(Index.TypeDefOrRef, reader);
+            record.Class = ReadIndex(Index.TypeDef, reader);
+            record.Interface = ReadIndex(Index.TypeDefOrRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct InterfaceImplRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Class;
+            public uint Interface;
         }
     }
 
@@ -352,18 +520,18 @@ namespace BoldAspect.CLI
         protected override MemberRefRecord Read(BlobReader reader)
         {
             var record = new MemberRefRecord();
-            record.Column0 = ReadIndex(Index.MemberRefParent, reader);
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Class = ReadIndex(Index.MemberRefParent, reader);
+            record.Name = ReadIndex(Index.String, reader);
+            record.Signature = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MemberRefRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint Class;
+            public uint Name;
+            public uint Signature;
         }
     }
 
@@ -378,18 +546,18 @@ namespace BoldAspect.CLI
         protected override ConstantRecord Read(BlobReader reader)
         {
             var record = new ConstantRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.HasConstant, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Type = reader.ReadUInt16();
+            record.Parent = ReadIndex(Index.HasConstant, reader);
+            record.Value = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ConstantRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort Type;
+            public uint Parent;
+            public uint Value;
         }
     }
 
@@ -404,18 +572,18 @@ namespace BoldAspect.CLI
         protected override CustomAttributeRecord Read(BlobReader reader)
         {
             var record = new CustomAttributeRecord();
-            record.Column0 = ReadIndex(Index.HasCustomAttribute, reader);
-            record.Column1 = ReadIndex(Index.CustomAttributeType, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Parent = ReadIndex(Index.HasCustomAttribute, reader);
+            record.Type = ReadIndex(Index.CustomAttributeType, reader);
+            record.Value = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct CustomAttributeRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint Parent;
+            public uint Type;
+            public uint Value;
         }
     }
 
@@ -430,16 +598,16 @@ namespace BoldAspect.CLI
         protected override FieldMarshalRecord Read(BlobReader reader)
         {
             var record = new FieldMarshalRecord();
-            record.Column0 = ReadIndex(Index.HasFieldMarshal, reader);
-            record.Column1 = ReadIndex(Index.Blob, reader);
+            record.Parent = ReadIndex(Index.HasFieldMarshal, reader);
+            record.NativeType = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct FieldMarshalRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Parent;
+            public uint NativeType;
         }
     }
 
@@ -454,18 +622,18 @@ namespace BoldAspect.CLI
         protected override DeclSecurityRecord Read(BlobReader reader)
         {
             var record = new DeclSecurityRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.HasDeclSecurity, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Action = reader.ReadUInt16();
+            record.Parent = ReadIndex(Index.HasDeclSecurity, reader);
+            record.PermissionSet = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct DeclSecurityRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort Action;
+            public uint Parent;
+            public uint PermissionSet;
         }
     }
 
@@ -480,18 +648,18 @@ namespace BoldAspect.CLI
         protected override ClassLayoutRecord Read(BlobReader reader)
         {
             var record = new ClassLayoutRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = reader.ReadUInt32();
-            record.Column2 = ReadIndex(Index.TypeDef, reader);
+            record.PackingSize = reader.ReadUInt16();
+            record.ClassSize = reader.ReadUInt32();
+            record.Parent = ReadIndex(Index.TypeDef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ClassLayoutRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort PackingSize;
+            public uint ClassSize;
+            public uint Parent;
         }
     }
 
@@ -506,16 +674,16 @@ namespace BoldAspect.CLI
         protected override FieldLayoutRecord Read(BlobReader reader)
         {
             var record = new FieldLayoutRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = ReadIndex(Index.Field, reader);
+            record.Offset = reader.ReadUInt32();
+            record.Field = ReadIndex(Index.Field, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct FieldLayoutRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Offset;
+            public uint Field;
         }
     }
 
@@ -530,14 +698,14 @@ namespace BoldAspect.CLI
         protected override StandAloneSigRecord Read(BlobReader reader)
         {
             var record = new StandAloneSigRecord();
-            record.Column0 = ReadIndex(Index.Blob, reader);
+            record.Signature = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct StandAloneSigRecord
         {
-            public uint Column0;
+            public uint Signature;
         }
     }
 
@@ -552,16 +720,16 @@ namespace BoldAspect.CLI
         protected override EventMapRecord Read(BlobReader reader)
         {
             var record = new EventMapRecord();
-            record.Column0 = ReadIndex(Index.TypeDef, reader);
-            record.Column1 = ReadIndex(Index.Event, reader);
+            record.Parent = ReadIndex(Index.TypeDef, reader);
+            record.EventList = ReadIndex(Index.Event, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct EventMapRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Parent;
+            public uint EventList;
         }
     }
 
@@ -576,18 +744,18 @@ namespace BoldAspect.CLI
         protected override EventRecord Read(BlobReader reader)
         {
             var record = new EventRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.TypeDefOrRef, reader);
+            record.EventFlags = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
+            record.EventType = ReadIndex(Index.TypeDefOrRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct EventRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort EventFlags;
+            public uint Name;
+            public uint EventType;
         }
     }
 
@@ -602,16 +770,16 @@ namespace BoldAspect.CLI
         protected override PropertyMapRecord Read(BlobReader reader)
         {
             var record = new PropertyMapRecord();
-            record.Column0 = ReadIndex(Index.TypeDef, reader);
-            record.Column1 = ReadIndex(Index.Property, reader);
+            record.Parent = ReadIndex(Index.TypeDef, reader);
+            record.PropertyList = ReadIndex(Index.Property, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct PropertyMapRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Parent;
+            public uint PropertyList;
         }
     }
 
@@ -626,18 +794,18 @@ namespace BoldAspect.CLI
         protected override PropertyRecord Read(BlobReader reader)
         {
             var record = new PropertyRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Flags = reader.ReadUInt16();
+            record.Name = ReadIndex(Index.String, reader);
+            record.Type = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct PropertyRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort Flags;
+            public uint Name;
+            public uint Type;
         }
     }
 
@@ -652,18 +820,18 @@ namespace BoldAspect.CLI
         protected override MethodSemanticsRecord Read(BlobReader reader)
         {
             var record = new MethodSemanticsRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.MethodDef, reader);
-            record.Column2 = ReadIndex(Index.HasSemantics, reader);
+            record.Semantics = reader.ReadUInt16();
+            record.Method = ReadIndex(Index.MethodDef, reader);
+            record.Association = ReadIndex(Index.HasSemantics, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MethodSemanticsRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
+            public ushort Semantics;
+            public uint Method;
+            public uint Association;
         }
     }
 
@@ -678,18 +846,18 @@ namespace BoldAspect.CLI
         protected override MethodImplRecord Read(BlobReader reader)
         {
             var record = new MethodImplRecord();
-            record.Column0 = ReadIndex(Index.TypeDef, reader);
-            record.Column1 = ReadIndex(Index.MethodDefOrRef, reader);
-            record.Column2 = ReadIndex(Index.MethodDefOrRef, reader);
+            record.Class = ReadIndex(Index.TypeDef, reader);
+            record.MethodBody = ReadIndex(Index.MethodDefOrRef, reader);
+            record.MethodDeclaration = ReadIndex(Index.MethodDefOrRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MethodImplRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint Class;
+            public uint MethodBody;
+            public uint MethodDeclaration;
         }
     }
 
@@ -704,14 +872,14 @@ namespace BoldAspect.CLI
         protected override ModuleRefRecord Read(BlobReader reader)
         {
             var record = new ModuleRefRecord();
-            record.Column0 = ReadIndex(Index.String, reader);
+            record.Name = ReadIndex(Index.String, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ModuleRefRecord
         {
-            public uint Column0;
+            public uint Name;
         }
     }
 
@@ -726,14 +894,14 @@ namespace BoldAspect.CLI
         protected override TypeSpecRecord Read(BlobReader reader)
         {
             var record = new TypeSpecRecord();
-            record.Column0 = ReadIndex(Index.Blob, reader);
+            record.Signature = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct TypeSpecRecord
         {
-            public uint Column0;
+            public uint Signature;
         }
     }
 
@@ -748,20 +916,20 @@ namespace BoldAspect.CLI
         protected override ImplMapRecord Read(BlobReader reader)
         {
             var record = new ImplMapRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = ReadIndex(Index.MemberForwarded, reader);
-            record.Column2 = ReadIndex(Index.String, reader);
-            record.Column3 = ReadIndex(Index.ModuleRef, reader);
+            record.MappingFlags = reader.ReadUInt16();
+            record.MemberForwarded = ReadIndex(Index.MemberForwarded, reader);
+            record.ImportName = ReadIndex(Index.String, reader);
+            record.ImportScope = ReadIndex(Index.ModuleRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ImplMapRecord
         {
-            public ushort Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
+            public ushort MappingFlags;
+            public uint MemberForwarded;
+            public uint ImportName;
+            public uint ImportScope;
         }
     }
 
@@ -776,16 +944,16 @@ namespace BoldAspect.CLI
         protected override FieldRVARecord Read(BlobReader reader)
         {
             var record = new FieldRVARecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = ReadIndex(Index.Field, reader);
+            record.RVA = reader.ReadUInt32();
+            record.Field = ReadIndex(Index.Field, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct FieldRVARecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint RVA;
+            public uint Field;
         }
     }
 
@@ -800,30 +968,30 @@ namespace BoldAspect.CLI
         protected override AssemblyRecord Read(BlobReader reader)
         {
             var record = new AssemblyRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt16();
-            record.Column2 = reader.ReadUInt16();
-            record.Column3 = reader.ReadUInt16();
-            record.Column4 = reader.ReadUInt16();
-            record.Column5 = reader.ReadUInt32();
-            record.Column6 = ReadIndex(Index.Blob, reader);
-            record.Column7 = ReadIndex(Index.String, reader);
-            record.Column8 = ReadIndex(Index.String, reader);
+            record.HashAlgId = reader.ReadUInt32();
+            record.MajorVersion = reader.ReadUInt16();
+            record.MinorVersion = reader.ReadUInt16();
+            record.BuildNumber = reader.ReadUInt16();
+            record.RevisionNumber = reader.ReadUInt16();
+            record.Flags = reader.ReadUInt32();
+            record.PublicKey = ReadIndex(Index.Blob, reader);
+            record.Name = ReadIndex(Index.String, reader);
+            record.Culture = ReadIndex(Index.String, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyRecord
         {
-            public uint Column0;
-            public ushort Column1;
-            public ushort Column2;
-            public ushort Column3;
-            public ushort Column4;
-            public uint Column5;
-            public uint Column6;
-            public uint Column7;
-            public uint Column8;
+            public uint HashAlgId;
+            public ushort MajorVersion;
+            public ushort MinorVersion;
+            public ushort BuildNumber;
+            public ushort RevisionNumber;
+            public uint Flags;
+            public uint PublicKey;
+            public uint Name;
+            public uint Culture;
         }
     }
 
@@ -838,14 +1006,14 @@ namespace BoldAspect.CLI
         protected override AssemblyProcessorRecord Read(BlobReader reader)
         {
             var record = new AssemblyProcessorRecord();
-            record.Column0 = reader.ReadUInt32();
+            record.Processor = reader.ReadUInt32();
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyProcessorRecord
         {
-            public uint Column0;
+            public uint Processor;
         }
     }
 
@@ -860,18 +1028,18 @@ namespace BoldAspect.CLI
         protected override AssemblyOSRecord Read(BlobReader reader)
         {
             var record = new AssemblyOSRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt32();
-            record.Column2 = reader.ReadUInt32();
+            record.OSPlatformID = reader.ReadUInt32();
+            record.OSMajorVersion = reader.ReadUInt32();
+            record.OSMinorVersion = reader.ReadUInt32();
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyOSRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint OSPlatformID;
+            public uint OSMajorVersion;
+            public uint OSMinorVersion;
         }
     }
 
@@ -886,30 +1054,30 @@ namespace BoldAspect.CLI
         protected override AssemblyRefRecord Read(BlobReader reader)
         {
             var record = new AssemblyRefRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = reader.ReadUInt16();
-            record.Column2 = reader.ReadUInt16();
-            record.Column3 = reader.ReadUInt16();
-            record.Column4 = reader.ReadUInt32();
-            record.Column5 = ReadIndex(Index.Blob, reader);
-            record.Column6 = ReadIndex(Index.String, reader);
-            record.Column7 = ReadIndex(Index.String, reader);
-            record.Column8 = ReadIndex(Index.Blob, reader);
+            record.MajorVersion = reader.ReadUInt16();
+            record.MinorVersion = reader.ReadUInt16();
+            record.BuildNumber = reader.ReadUInt16();
+            record.RevisionNumber = reader.ReadUInt16();
+            record.Flags = reader.ReadUInt32();
+            record.PublicKeyOrToken = ReadIndex(Index.Blob, reader);
+            record.Name = ReadIndex(Index.String, reader);
+            record.Culture = ReadIndex(Index.String, reader);
+            record.HashValue = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyRefRecord
         {
-            public ushort Column0;
-            public ushort Column1;
-            public ushort Column2;
-            public ushort Column3;
-            public uint Column4;
-            public uint Column5;
-            public uint Column6;
-            public uint Column7;
-            public uint Column8;
+            public ushort MajorVersion;
+            public ushort MinorVersion;
+            public ushort BuildNumber;
+            public ushort RevisionNumber;
+            public uint Flags;
+            public uint PublicKeyOrToken;
+            public uint Name;
+            public uint Culture;
+            public uint HashValue;
         }
     }
 
@@ -924,16 +1092,16 @@ namespace BoldAspect.CLI
         protected override AssemblyRefProcessorRecord Read(BlobReader reader)
         {
             var record = new AssemblyRefProcessorRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = ReadIndex(Index.AssemblyRef, reader);
+            record.Processor = reader.ReadUInt32();
+            record.AssemblyRef = ReadIndex(Index.AssemblyRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyRefProcessorRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Processor;
+            public uint AssemblyRef;
         }
     }
 
@@ -948,20 +1116,20 @@ namespace BoldAspect.CLI
         protected override AssemblyRefOSRecord Read(BlobReader reader)
         {
             var record = new AssemblyRefOSRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt32();
-            record.Column2 = reader.ReadUInt32();
-            record.Column3 = ReadIndex(Index.AssemblyRef, reader);
+            record.OSPlatformID = reader.ReadUInt32();
+            record.OSMajorVersion = reader.ReadUInt32();
+            record.OSMinorVersion = reader.ReadUInt32();
+            record.AssemblyRef = ReadIndex(Index.AssemblyRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct AssemblyRefOSRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
+            public uint OSPlatformID;
+            public uint OSMajorVersion;
+            public uint OSMinorVersion;
+            public uint AssemblyRef;
         }
     }
 
@@ -976,18 +1144,18 @@ namespace BoldAspect.CLI
         protected override FileRecord Read(BlobReader reader)
         {
             var record = new FileRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = ReadIndex(Index.String, reader);
-            record.Column2 = ReadIndex(Index.Blob, reader);
+            record.Flags = reader.ReadUInt32();
+            record.Name = ReadIndex(Index.String, reader);
+            record.HashValue = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct FileRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
+            public uint Flags;
+            public uint Name;
+            public uint HashValue;
         }
     }
 
@@ -1002,22 +1170,22 @@ namespace BoldAspect.CLI
         protected override ExportedTypeRecord Read(BlobReader reader)
         {
             var record = new ExportedTypeRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt32();
-            record.Column2 = ReadIndex(Index.String, reader);
-            record.Column3 = ReadIndex(Index.String, reader);
-            record.Column4 = ReadIndex(Index.Implementation, reader);
+            record.Flags = reader.ReadUInt32();
+            record.TypeDefId = reader.ReadUInt32();
+            record.TypeName = ReadIndex(Index.String, reader);
+            record.TypeNamespace = ReadIndex(Index.String, reader);
+            record.Implementation = ReadIndex(Index.Implementation, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ExportedTypeRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
-            public uint Column4;
+            public uint Flags;
+            public uint TypeDefId;
+            public uint TypeName;
+            public uint TypeNamespace;
+            public uint Implementation;
         }
     }
 
@@ -1032,20 +1200,20 @@ namespace BoldAspect.CLI
         protected override ManifestResourceRecord Read(BlobReader reader)
         {
             var record = new ManifestResourceRecord();
-            record.Column0 = reader.ReadUInt32();
-            record.Column1 = reader.ReadUInt32();
-            record.Column2 = ReadIndex(Index.String, reader);
-            record.Column3 = ReadIndex(Index.Implementation, reader);
+            record.Offset = reader.ReadUInt32();
+            record.Flags = reader.ReadUInt32();
+            record.Name = ReadIndex(Index.String, reader);
+            record.Implementation = ReadIndex(Index.Implementation, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct ManifestResourceRecord
         {
-            public uint Column0;
-            public uint Column1;
-            public uint Column2;
-            public uint Column3;
+            public uint Offset;
+            public uint Flags;
+            public uint Name;
+            public uint Implementation;
         }
     }
 
@@ -1060,16 +1228,16 @@ namespace BoldAspect.CLI
         protected override NestedClassRecord Read(BlobReader reader)
         {
             var record = new NestedClassRecord();
-            record.Column0 = ReadIndex(Index.TypeDef, reader);
-            record.Column1 = ReadIndex(Index.TypeDef, reader);
+            record.NestedClass = ReadIndex(Index.TypeDef, reader);
+            record.EnclosingClass = ReadIndex(Index.TypeDef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct NestedClassRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint NestedClass;
+            public uint EnclosingClass;
         }
     }
 
@@ -1084,20 +1252,20 @@ namespace BoldAspect.CLI
         protected override GenericParamRecord Read(BlobReader reader)
         {
             var record = new GenericParamRecord();
-            record.Column0 = reader.ReadUInt16();
-            record.Column1 = reader.ReadUInt16();
-            record.Column2 = ReadIndex(Index.TypeOrMethodDef, reader);
-            record.Column3 = ReadIndex(Index.String, reader);
+            record.Number = reader.ReadUInt16();
+            record.Flags = reader.ReadUInt16();
+            record.Owner = ReadIndex(Index.TypeOrMethodDef, reader);
+            record.Name = ReadIndex(Index.String, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct GenericParamRecord
         {
-            public ushort Column0;
-            public ushort Column1;
-            public uint Column2;
-            public uint Column3;
+            public ushort Number;
+            public ushort Flags;
+            public uint Owner;
+            public uint Name;
         }
     }
 
@@ -1112,16 +1280,16 @@ namespace BoldAspect.CLI
         protected override MethodSpecRecord Read(BlobReader reader)
         {
             var record = new MethodSpecRecord();
-            record.Column0 = ReadIndex(Index.MethodDefOrRef, reader);
-            record.Column1 = ReadIndex(Index.Blob, reader);
+            record.Method = ReadIndex(Index.MethodDefOrRef, reader);
+            record.Instantiation = ReadIndex(Index.Blob, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MethodSpecRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Method;
+            public uint Instantiation;
         }
     }
 
@@ -1136,16 +1304,16 @@ namespace BoldAspect.CLI
         protected override GenericParamConstraintRecord Read(BlobReader reader)
         {
             var record = new GenericParamConstraintRecord();
-            record.Column0 = ReadIndex(Index.GenericParam, reader);
-            record.Column1 = ReadIndex(Index.TypeDefOrRef, reader);
+            record.Owner = ReadIndex(Index.GenericParam, reader);
+            record.Constraint = ReadIndex(Index.TypeDefOrRef, reader);
             return record;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct GenericParamConstraintRecord
         {
-            public uint Column0;
-            public uint Column1;
+            public uint Owner;
+            public uint Constraint;
         }
     }
 }

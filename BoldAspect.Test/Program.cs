@@ -13,13 +13,80 @@ namespace BoldAspect.Test
     {
         static void Main(string[] args)
         {
-            BuildTableReaders();
+            BuildAssembly();
+        }
+
+        static void ReadPE()
+        {
+            const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll";
+            var pe = new PortableExecutable(fileName);
         }
 
         static void BuildAssembly()
         {
             const string fileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\mscorlib.dll";
             var assembly = MetadataStorage.ReadAssembly(fileName);
+        }
+
+        static void CodedIndexes()
+        {
+
+            var sb = new StringBuilder();
+            var r = new MetadataRoot();
+            foreach (var ci in r.CodedIndexes)
+            {
+                sb.AppendFormat("CalculateCodedIndexWidth(Index.{0}, {1}, ", ci.EnumType.Name, ci.TagWidth);
+                sb.Append("new [] { ");
+                sb.Append(string.Join(", ", ci.Tables.Select(t => "TableID." + t)));
+                sb.Append("});\r\n");
+            }
+            Debug.Write(sb.ToString());
+        }
+
+        static void BuildRowCount2()
+        {
+
+            var sb = new StringBuilder();
+            var r = new MetadataRoot();
+            foreach (var t in r.Tables)
+            {
+                sb.AppendFormat("case TableID.{0}:\r\n", t.TableID);
+                sb.AppendFormat("SetWidth(Index.{0}, width);\r\n", t.TableID);
+                sb.AppendLine("break;");
+            }
+            Debug.Write(sb.ToString());
+        }
+
+        static void BuildRowCount()
+        {
+
+            var sb = new StringBuilder();
+            var r = new MetadataRoot();
+            foreach (var t in r.Tables)
+            {
+                sb.AppendFormat("case TableID.{0}:\r\n", t.TableID);
+                sb.AppendFormat("{0}Table.RowCount = rowCount;\r\n", t.TableID);
+                sb.AppendFormat("{0}Table.FileIndex = fileIndex;\r\n", t.TableID);
+                sb.AppendFormat("Indexes.SetWidth(Index.{0}, rowCount >= ushort.MaxValue ? 4 : 2);\r\n", t.TableID);
+                sb.AppendLine("break;");
+            }
+            Debug.Write(sb.ToString());
+        }
+
+        static void BuildTableConstruct()
+        {
+            
+            var sb = new StringBuilder();
+            var r = new MetadataRoot();
+            foreach (var t in r.Tables)
+            {
+                sb.AppendFormat("public readonly {0}Table {0}Table;\r\n", t.TableID);
+            }
+            foreach (var t in r.Tables)
+            {
+                sb.AppendFormat("_tables.Add(TableID.{0}, new {0}Table(Indexes));\r\n", t.TableID);
+            }
+            Debug.Write(sb.ToString());
         }
 
         static void BuildTableReaders()

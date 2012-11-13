@@ -76,51 +76,47 @@ namespace BoldAspect.CLI
         public static IModule ReadModule(string fileName)
         {
             var pe = new PortableExecutable(fileName);
-            using (var tr = pe.MetadataRoot.CreateTableReader(TableID.Module))
-            {
-                if (!tr.NextRow())
-                    throw new Exception();
-                var module = new CLIModule();
-                tr.ReadColumn<ushort>();
-                module.Name = tr.ReadColumn<string>();
-                module.Guid = tr.ReadColumn<Guid>();
+            var table = pe.MetadataRoot.GetTable<ModuleTable>(TableID.Module);
+            var record = table[0];
+            var module = new CLIModule();
+            module.Name = pe.MetadataRoot.GetString(record.Name);
+            module.Guid = pe.MetadataRoot.GetGuid(record.Mvid);
 
 
-                ReadDefinedTypes(pe, module);
-                ReadDefinedParams(pe, module);
-                ReadDefinedMethods(pe, module);
-                ReadDefinedFields(pe, module);
+            //ReadDefinedTypes(pe, module);
+            //ReadDefinedParams(pe, module);
+            //ReadDefinedMethods(pe, module);
+            //ReadDefinedFields(pe, module);
 
 
-                var start = module.DefinedMethods.Count - 1;
-                var stopIndex = module.DefinedParams.Count - 1;
-                for (int i = start; i >= 0; --i)
-                {
-                    var method = (CLIMethod)module.DefinedMethods[i];
-                    if (method.ParamListIndex <= 0)
-                        continue;
-                    var paramStart = (int)method.ParamListIndex - 1;
-                    for (int j = paramStart; j < stopIndex; j++)
-                    {
-                        var param = module.DefinedParams[j];
-                        try
-                        {
-                            param.Type = method.Signature.Params[j - paramStart].TypeSignature.TypeReference;
-                        }
-                        catch (Exception)
-                        {
-                            // I hate myself
-                        }
-                        method.Parameters.Add(param);
-                    }
-                    stopIndex = paramStart;
-                }
+            //var start = module.DefinedMethods.Count - 1;
+            //var stopIndex = module.DefinedParams.Count - 1;
+            //for (int i = start; i >= 0; --i)
+            //{
+            //    var method = (CLIMethod)module.DefinedMethods[i];
+            //    if (method.ParamListIndex <= 0)
+            //        continue;
+            //    var paramStart = (int)method.ParamListIndex - 1;
+            //    for (int j = paramStart; j < stopIndex; j++)
+            //    {
+            //        var param = module.DefinedParams[j];
+            //        try
+            //        {
+            //            param.Type = method.Signature.Params[j - paramStart].TypeSignature.TypeReference;
+            //        }
+            //        catch (Exception)
+            //        {
+            //            // I hate myself
+            //        }
+            //        method.Parameters.Add(param);
+            //    }
+            //    stopIndex = paramStart;
+            //}
 
-                CompleteDefinedTypes(pe, module);
+            //CompleteDefinedTypes(pe, module);
 
-                module.Assembly = ReadAssembly(pe, module);
-                return module;
-            }
+            module.Assembly = ReadAssembly(pe, module);
+            return module;
         }
 
         private static void CompleteDefinedTypes(PortableExecutable pe, IModule module)
@@ -168,23 +164,20 @@ namespace BoldAspect.CLI
 
         private static IAssembly ReadAssembly(PortableExecutable pe, IModule manifestModule)
         {
-            using (var tr = pe.MetadataRoot.CreateTableReader(TableID.Assembly))
-            {
-                if (!tr.NextRow())
-                    throw new Exception();
-                var assembly = new CLIAssembly();
-                assembly.HashAlgorithm = tr.ReadColumn<AssemblyHashAlgorithm>();
-                assembly.Version = new Version(tr.ReadColumn<ushort>(), tr.ReadColumn<ushort>(), tr.ReadColumn<ushort>(), tr.ReadColumn<ushort>());
-                assembly.Flags = tr.ReadColumn<AssemblyFlags>();
-                assembly.PublicKey = tr.ReadColumn<Blob>();
-                assembly.Name = tr.ReadColumn<string>();
-                assembly.Culture = CultureInfo.CreateSpecificCulture(tr.ReadColumn<string>());
-                assembly.ManifestModule = manifestModule;
-                ReadAssemblyRefs(pe, assembly);
-                ReadModuleRefs(pe, assembly);
-                ReadTypeRefs(pe, assembly);
-                return assembly;
-            }
+            var table = pe.MetadataRoot.GetTable<AssemblyTable>(TableID.Assembly);
+            var record = table[0];
+            var assembly = new CLIAssembly();
+            assembly.HashAlgorithm = (AssemblyHashAlgorithm)record.HashAlgId;
+            assembly.Version = new Version(record.MajorVersion, record.MinorVersion, record.BuildNumber, record.RevisionNumber);
+            assembly.Flags = (AssemblyFlags)record.Flags;
+            assembly.PublicKey = pe.MetadataRoot.GetBlob(record.PublicKey);
+            assembly.Name = pe.MetadataRoot.GetString(record.Name);
+            assembly.Culture = CultureInfo.CreateSpecificCulture( pe.MetadataRoot.GetString(record.Culture));
+            assembly.ManifestModule = manifestModule;
+            //ReadAssemblyRefs(pe, assembly);
+            //ReadModuleRefs(pe, assembly);
+            //ReadTypeRefs(pe, assembly);
+            return assembly;
         }
 
         private static void ReadAssemblyRefs(PortableExecutable pe, IAssembly assembly)

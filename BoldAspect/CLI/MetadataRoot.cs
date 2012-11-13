@@ -49,6 +49,9 @@ namespace BoldAspect.CLI
         public readonly Slice _blobHeap;
         public readonly Slice _guidHeap;
 
+        private readonly Indexes _indexes;
+        private readonly Dictionary<TableID, ITable> _tables;
+
         public MetadataRoot()
         {
             SimpleIndexes = GetSimpleIndexes();
@@ -58,6 +61,47 @@ namespace BoldAspect.CLI
 
         public MetadataRoot(Slice data)
         {
+            _indexes = new Indexes();
+            _tables = new Dictionary<TableID, ITable>();
+            _tables.Add(TableID.Module, new ModuleTable(_indexes));
+            _tables.Add(TableID.TypeRef, new TypeRefTable(_indexes));
+            _tables.Add(TableID.TypeDef, new TypeDefTable(_indexes));
+            _tables.Add(TableID.Field, new FieldTable(_indexes));
+            _tables.Add(TableID.MethodDef, new MethodDefTable(_indexes));
+            _tables.Add(TableID.Param, new ParamTable(_indexes));
+            _tables.Add(TableID.InterfaceImpl, new InterfaceImplTable(_indexes));
+            _tables.Add(TableID.MemberRef, new MemberRefTable(_indexes));
+            _tables.Add(TableID.Constant, new ConstantTable(_indexes));
+            _tables.Add(TableID.CustomAttribute, new CustomAttributeTable(_indexes));
+            _tables.Add(TableID.FieldMarshal, new FieldMarshalTable(_indexes));
+            _tables.Add(TableID.DeclSecurity, new DeclSecurityTable(_indexes));
+            _tables.Add(TableID.ClassLayout, new ClassLayoutTable(_indexes));
+            _tables.Add(TableID.FieldLayout, new FieldLayoutTable(_indexes));
+            _tables.Add(TableID.StandAloneSig, new StandAloneSigTable(_indexes));
+            _tables.Add(TableID.EventMap, new EventMapTable(_indexes));
+            _tables.Add(TableID.Event, new EventTable(_indexes));
+            _tables.Add(TableID.PropertyMap, new PropertyMapTable(_indexes));
+            _tables.Add(TableID.Property, new PropertyTable(_indexes));
+            _tables.Add(TableID.MethodSemantics, new MethodSemanticsTable(_indexes));
+            _tables.Add(TableID.MethodImpl, new MethodImplTable(_indexes));
+            _tables.Add(TableID.ModuleRef, new ModuleRefTable(_indexes));
+            _tables.Add(TableID.TypeSpec, new TypeSpecTable(_indexes));
+            _tables.Add(TableID.ImplMap, new ImplMapTable(_indexes));
+            _tables.Add(TableID.FieldRVA, new FieldRVATable(_indexes));
+            _tables.Add(TableID.Assembly, new AssemblyTable(_indexes));
+            _tables.Add(TableID.AssemblyProcessor, new AssemblyProcessorTable(_indexes));
+            _tables.Add(TableID.AssemblyOS, new AssemblyOSTable(_indexes));
+            _tables.Add(TableID.AssemblyRef, new AssemblyRefTable(_indexes));
+            _tables.Add(TableID.AssemblyRefProcessor, new AssemblyRefProcessorTable(_indexes));
+            _tables.Add(TableID.AssemblyRefOS, new AssemblyRefOSTable(_indexes));
+            _tables.Add(TableID.File, new FileTable(_indexes));
+            _tables.Add(TableID.ExportedType, new ExportedTypeTable(_indexes));
+            _tables.Add(TableID.ManifestResource, new ManifestResourceTable(_indexes));
+            _tables.Add(TableID.NestedClass, new NestedClassTable(_indexes));
+            _tables.Add(TableID.GenericParam, new GenericParamTable(_indexes));
+            _tables.Add(TableID.MethodSpec, new MethodSpecTable(_indexes));
+            _tables.Add(TableID.GenericParamConstraint, new GenericParamConstraintTable(_indexes));
+
             _data = data;
             using (var br = _data.CreateReader())
             {
@@ -89,9 +133,6 @@ namespace BoldAspect.CLI
                             _guidHeap = slice;
                             break;
                         case "#~":
-                            SimpleIndexes = GetSimpleIndexes();
-                            CodedIndexes = GetCodedIndexes();
-                            Tables = GetTables();
                             using (var reader = slice.CreateReader())
                             {
                                 _reserved1 = reader.Read<uint>();
@@ -110,129 +151,35 @@ namespace BoldAspect.CLI
                                     _rows[r] = reader.Read<uint>();
                                 }
 
+                                _indexes.SetWidth(Index.String, _heapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide) ? 4 : 2);
+                                _indexes.SetWidth(Index.Guid, _heapSizeFlags.HasFlag(HeapSizeFlags.GuidHeapIsWide) ? 4 : 2);
+                                _indexes.SetWidth(Index.Blob, _heapSizeFlags.HasFlag(HeapSizeFlags.BlobHeapIsWide) ? 4 : 2); 
 
-                                for (int t = 0; t < 64; t++)
-                                {
-                                    if (!Enum.IsDefined(typeof(TableID), i))
-                                        continue;
-                                    Console.WriteLine("{0} = {1} -> {2}", (TableID)t, t, TableExists((TableID)t));
-                                }
-
-                                if (_heapSizeFlags.HasFlag(HeapSizeFlags.StringHeapIsWide))
-                                {
-                                    _stringsHeapIndexWidth = 4;
-                                }
-                                if (_heapSizeFlags.HasFlag(HeapSizeFlags.GuidHeapIsWide))
-                                {
-                                    _guidHeapIndexWidth = 4;
-                                }
-                                if (_heapSizeFlags.HasFlag(HeapSizeFlags.BlobHeapIsWide))
-                                {
-                                    _blobHeapIndexWidth = 4;
-                                }
 
 
                                 foreach (var v in Enum.GetValues(typeof(TableID)).Cast<TableID>())
                                 {
+                                    var table = _tables[v];
                                     var index = TableIndex(v);
                                     if (index >= 0)
                                     {
-                                        foreach (var t in Tables)
-                                        {
-                                            if (t.TableID == v)
-                                            {
-                                                t.RowCount = (int)_rows[index];
-                                                break;
-                                            }
-                                        }
+                                        table.RowCount = (int)_rows[index];
+                                        table.FileIndex = index;
                                     }
+                                    _indexes.SetWidth(v, table.RowCount > ushort.MaxValue ? 4 : 2);
                                 }
 
-                                foreach (var t in Tables.Zip(SimpleIndexes, (t, s) => new { t, s }))
-                                {
-                                    if (t.t.RowCount >= ushort.MaxValue)
-                                    {
-                                        t.s.ByteWidth = 4;
-                                    }
-                                }
+                                CalculateCodedIndexWidths();
 
-                                foreach (var ci in CodedIndexes)
+                                foreach (var id in Enum.GetValues(typeof(TableID)).Cast<TableID>())
                                 {
-                                    var overLimit = false;
-                                    var max = 0;
-                                    foreach (var t in Tables.Where(tb => ci.Tables.Contains(tb.TableID)))
-                                    {
-                                        max = Math.Max(max, t.RowCount);
-                                    }
-                                    overLimit = max > (1 << (16 - ci.TagWidth));
-                                    if (overLimit)
-                                    {
-                                        ci.ByteWidth = 4;
-                                    }
-                                }
-
-                                foreach (var table in Tables)
-                                {
-                                    var w = 0;
-                                    foreach (var column in table.Columns)
-                                    {
-                                        var t = column as Type;
-                                        if (t != null)
-                                        {
-                                            if (t == typeof(byte))
-                                            {
-                                                w += 1;
-                                            }
-                                            else if (t == typeof(ushort))
-                                            {
-                                                w += 2;
-                                            }
-                                            else if (t == typeof(uint))
-                                            {
-                                                w += 4;
-                                            }
-                                            else if (t == typeof(ulong))
-                                            {
-                                                w += 8;
-                                            }
-                                            else if (t == typeof(StringsHeapIndex))
-                                            {
-                                                w += _stringsHeapIndexWidth;
-                                            }
-                                            else if (t == typeof(GuidHeapIndex))
-                                            {
-                                                w += _guidHeapIndexWidth;
-                                            }
-                                            else if (t == typeof(BlobHeapIndex))
-                                            {
-                                                w += _blobHeapIndexWidth;
-                                            }
-                                            else
-                                            {
-                                                throw new Exception();
-                                            }
-                                        }
-                                        var si = column as SimpleIndex;
-                                        if (si != null)
-                                        {
-                                            w += si.ByteWidth;
-                                        }
-                                        var ci = column as CodedIndex;
-                                        if (ci != null)
-                                        {
-                                            w += ci.ByteWidth;
-                                        }
-                                    }
-                                    table.RowWidth = w;
-                                }
-
-                                foreach (var table in Tables)
-                                {
-                                    if (!TableExists(table.TableID))
+                                    var table = _tables[id];
+                                    if (table.FileIndex < 0)
                                         continue;
-                                    var tableData = reader.ReadSlice((table.RowCount * table.RowWidth));
-                                    //Debug.WriteLine(BitConverter.ToString(tableData.Data, tableData.Offset, tableData.Length));
-                                    _tableMap.Add(table.TableID, tableData);
+                                    using (var tableReader = reader.ReadSlice((table.RowCount * table.RowWidth)).CreateReader())
+                                    {
+                                        table.Populate(tableReader);
+                                    }
                                 }
                             }
                             break;
@@ -241,6 +188,46 @@ namespace BoldAspect.CLI
                     }
                 }
             }
+        }
+
+        private void CalculateCodedIndexWidths()
+        {
+            CalculateCodedIndexWidth(Index.TypeDefOrRef, 2, new[] { TableID.TypeDef, TableID.TypeRef, TableID.TypeSpec });
+            CalculateCodedIndexWidth(Index.HasConstant, 2, new[] { TableID.Field, TableID.Param, TableID.Property });
+            CalculateCodedIndexWidth(Index.HasCustomAttribute, 5, new[] { TableID.MethodDef, TableID.Field, TableID.TypeRef, TableID.TypeDef, TableID.Param, TableID.InterfaceImpl, TableID.MemberRef, TableID.Module, TableID.Property, TableID.Event, TableID.StandAloneSig, TableID.ModuleRef, TableID.TypeSpec, TableID.Assembly, TableID.AssemblyRef, TableID.File, TableID.ExportedType, TableID.ManifestResource, TableID.GenericParam, TableID.GenericParamConstraint, TableID.MethodSpec });
+            CalculateCodedIndexWidth(Index.HasFieldMarshal, 1, new[] { TableID.Field, TableID.Param });
+            CalculateCodedIndexWidth(Index.HasDeclSecurity, 2, new[] { TableID.TypeDef, TableID.MethodDef, TableID.Assembly });
+            CalculateCodedIndexWidth(Index.MemberRefParent, 3, new[] { TableID.TypeDef, TableID.TypeRef, TableID.ModuleRef, TableID.MethodDef, TableID.TypeSpec });
+            CalculateCodedIndexWidth(Index.HasSemantics, 1, new[] { TableID.Event, TableID.Property });
+            CalculateCodedIndexWidth(Index.MethodDefOrRef, 1, new[] { TableID.MethodDef, TableID.MemberRef });
+            CalculateCodedIndexWidth(Index.MemberForwarded, 1, new[] { TableID.Field, TableID.MethodDef });
+            CalculateCodedIndexWidth(Index.Implementation, 2, new[] { TableID.File, TableID.AssemblyRef, TableID.ExportedType });
+            CalculateCodedIndexWidth(Index.CustomAttributeType, 3, new[] { TableID.MethodDef, TableID.MemberRef });
+            CalculateCodedIndexWidth(Index.ResolutionScope, 3, new[] { TableID.Module, TableID.ModuleRef, TableID.AssemblyRef, TableID.TypeRef });
+            CalculateCodedIndexWidth(Index.TypeOrMethodDef, 1, new[] { TableID.TypeDef, TableID.MethodDef });
+
+        }
+
+        private void CalculateCodedIndexWidth(Index index, int tagWidth, TableID[] tables)
+        {
+            var max = 0;
+            foreach (var table in tables)
+            {
+                max = Math.Max(max, _tables[table].RowCount);
+            }
+            if (max > (1 << (16 - tagWidth)))
+            {
+                _indexes.SetWidth(index, 4);
+            }
+            else
+            {
+                _indexes.SetWidth(index, 2);
+            }
+        }
+
+        public T GetTable<T>(TableID table) where T : ITable
+        {
+            return (T)_tables[table];
         }
 
         public TableReader CreateTableReader(TableID table)

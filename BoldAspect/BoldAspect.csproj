@@ -46,8 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CLI\Indexes.cs" />
-    <Compile Include="CLI\Records.cs" />
     <Compile Include="CLI\Table.cs" />
     <Compile Include="CLI\Tables.cs" />
     <Compile Include="IO\Primitives.cs" />
