@@ -61,7 +61,7 @@ namespace BoldAspect.CLI
             _reader = blob.ToReader();
             _module = module;
         }
-
+        
         public object ReadSignature()
         {
             var cc = _reader.Read<CallingConventions>();
@@ -214,65 +214,13 @@ namespace BoldAspect.CLI
                     return new TypeSignature();
             }
         }
-
-        public CallingConventions ReadCallingConventions()
-        {
-            return _reader.Read<CallingConventions>();
-        }
-
-        public CustomModCollection ReadCustomMods()
-        {
-            var list = new CustomModCollection();
-            var cm = default(CustomMod);
-            while (TryReadCustomMod(out cm))
-                list.Add(cm);
-            return list;
-        }
-
-        public bool TryReadCustomMod(out CustomMod result)
-        {
-            result = null;
-            if (_reader.Index == _reader.Length)
-                return false;
-            var type = (ElementType)_reader.ReadByte();
-            var match = type == ElementType.Cmod_opt || type == ElementType.Cmod_reqd;
-            if (!match)
-            {
-                _reader.Offset(-1);
-                return false;
-            }
-            var token = ReadCompressedToken();
-            result = new CustomMod(type == ElementType.Cmod_reqd, null);
-            return true;
-        }
-
-        public uint ReadCompressedUInt32()
-        {
-            byte first = _reader.ReadByte();
-            if ((first & 0x80) == 0)
-                return first;
-
-            if ((first & 0x40) == 0)
-                return ((uint)(first & ~0x80) << 8)
-                    | _reader.ReadByte();
-
-            return ((uint)(first & ~0xc0) << 24)
-                | (uint)_reader.ReadByte() << 16
-                | (uint)_reader.ReadByte() << 8
-                | _reader.ReadByte();
-        }
-
+        
         public MetadataToken ReadCompressedToken()
         {
-            var val = ReadCompressedUInt32();
+            var val = _reader.ReadCompressedUInt32();
             var tag = (val & 0x00000003);
             var index = (val & 0xFFFFFFFC) >> 2;
             return new MetadataToken((tag << 24) | index);
-        }
-
-        public ArrayShape ReadArrayShape()
-        {
-            return _reader.Read<ArrayShape>();
         }
 
         public void Dispose()

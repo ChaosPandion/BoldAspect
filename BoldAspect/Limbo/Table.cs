@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-    public abstract class Table<T> : List<T>
-    {
-        public TableID TableID { get; private set; }
+    //public abstract class Table<T> : List<T>
+    //{
+    //    public TableID TableID { get; private set; }
 
-        protected Table(TableID tableID)
-        {
-            TableID = tableID;
-        }
-    }
+    //    protected Table(TableID tableID)
+    //    {
+    //        TableID = tableID;
+    //    }
+    //}
 }

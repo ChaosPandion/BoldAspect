@@ -16,47 +16,47 @@ namespace BoldAspect.CLI
         DefaultConstructorConstraint = 0x0010,
     }
 
-    class GenericParamTable : Table<GenericParamRecord>
-    {
-        public GenericParamTable()
-            : base(TableID.GenericParam)
-        {
+    //class GenericParamTable : Table<GenericParamRecord>
+    //{
+    //    public GenericParamTable()
+    //        : base(TableID.GenericParam)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct GenericParamRecord
-    {
-        [ConstantColumn(typeof(ushort))]
-        public ushort Number;
+    //struct GenericParamRecord
+    //{
+    //    [ConstantColumn(typeof(ushort))]
+    //    public ushort Number;
 
-        [ConstantColumn(typeof(GenericParamAttributes))]
-        public GenericParamAttributes Flags;
+    //    [ConstantColumn(typeof(GenericParamAttributes))]
+    //    public GenericParamAttributes Flags;
 
-        [CodedIndex(typeof(TypeOrMethodDef))]
-        public uint Owner;
+    //    [CodedIndex(typeof(TypeOrMethodDef))]
+    //    public uint Owner;
 
-        [StringHeapIndex]
-        public uint Name;
-    }
+    //    [StringHeapIndex]
+    //    public uint Name;
+    //}
 
-    class GenericParamConstraintTable : Table<GenericParamConstraintRecord>
-    {
-        public GenericParamConstraintTable()
-            : base(TableID.GenericParamConstraint)
-        {
+    //class GenericParamConstraintTable : Table<GenericParamConstraintRecord>
+    //{
+    //    public GenericParamConstraintTable()
+    //        : base(TableID.GenericParamConstraint)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct GenericParamConstraintRecord
-    {
-        [SimpleIndex(TableID.GenericParam)]
-        public uint Owner;
+    //struct GenericParamConstraintRecord
+    //{
+    //    [SimpleIndex(TableID.GenericParam)]
+    //    public uint Owner;
 
-        [CodedIndex(typeof(TypeDefOrRef))]
-        public uint Constraint;
+    //    [CodedIndex(typeof(TypeDefOrRef))]
+    //    public uint Constraint;
 
 
-    }
+    //}
 }

@@ -49,6 +49,13 @@ namespace BoldAspect.CLI
         public readonly Slice _blobHeap;
         public readonly Slice _guidHeap;
 
+        public MetadataRoot()
+        {
+            SimpleIndexes = GetSimpleIndexes();
+            CodedIndexes = GetCodedIndexes();
+            Tables = GetTables();
+        }
+
         public MetadataRoot(Slice data)
         {
             _data = data;

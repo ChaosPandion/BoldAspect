@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
+
+
     public sealed class TableReader : BlobReader
     {
         private readonly MetadataRoot _root;
@@ -19,6 +21,11 @@ namespace BoldAspect.CLI
         {
             _root = root;
             _schema = _root.GetTableSchema(table);
+        }
+
+        public void SeekRow(int index)
+        {
+            Seek((index - 1) * _schema.RowWidth);
         }
 
         public bool NextRow()

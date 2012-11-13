@@ -129,83 +129,83 @@ namespace BoldAspect.CLI
     }
 
 
-    public struct MethodDefRecord
-    {
-        [ConstantColumn(typeof(uint))]
-        public uint RVA;
+    //public struct MethodDefRecord
+    //{
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint RVA;
 
-        [ConstantColumn(typeof(MethodImplAttributes))]
-        public MethodImplAttributes ImplFlags;
+    //    [ConstantColumn(typeof(MethodImplAttributes))]
+    //    public MethodImplAttributes ImplFlags;
 
-        [ConstantColumn(typeof(MethodAttributes))]
-        public MethodAttributes Flags;
+    //    [ConstantColumn(typeof(MethodAttributes))]
+    //    public MethodAttributes Flags;
 
-        [StringHeapIndex]
-        public uint Name;
+    //    [StringHeapIndex]
+    //    public uint Name;
 
-        [BlobHeapIndex]
-        public uint Signature;
+    //    [BlobHeapIndex]
+    //    public uint Signature;
 
-        [SimpleIndex(TableID.Param)]
-        public uint ParamList;
-    }
-    class MethodImplTable : Table<MethodImplRecord>
-    {
-        public MethodImplTable()
-            : base(TableID.MethodImpl)
-        {
+    //    [SimpleIndex(TableID.Param)]
+    //    public uint ParamList;
+    //}
+    //class MethodImplTable : Table<MethodImplRecord>
+    //{
+    //    public MethodImplTable()
+    //        : base(TableID.MethodImpl)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct MethodImplRecord
-    {
-        [SimpleIndex(TableID.TypeDef)]
-        public uint Class;
+    //struct MethodImplRecord
+    //{
+    //    [SimpleIndex(TableID.TypeDef)]
+    //    public uint Class;
 
-        [CodedIndex(typeof(MethodDefOrRef))]
-        public uint MethodBody;
+    //    [CodedIndex(typeof(MethodDefOrRef))]
+    //    public uint MethodBody;
 
-        [CodedIndex(typeof(MethodDefOrRef))]
-        public uint MethodDeclaration;
-    }
-    class MethodSemanticsTable : Table<MethodSemanticsRecord>
-    {
-        public MethodSemanticsTable()
-            : base(TableID.MethodSemantics)
-        {
+    //    [CodedIndex(typeof(MethodDefOrRef))]
+    //    public uint MethodDeclaration;
+    //}
+    //class MethodSemanticsTable : Table<MethodSemanticsRecord>
+    //{
+    //    public MethodSemanticsTable()
+    //        : base(TableID.MethodSemantics)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct MethodSemanticsRecord
-    {
-        [ConstantColumn(typeof(MethodSemanticsAttributes))]
-        public MethodSemanticsAttributes Semantics;
+    //struct MethodSemanticsRecord
+    //{
+    //    [ConstantColumn(typeof(MethodSemanticsAttributes))]
+    //    public MethodSemanticsAttributes Semantics;
 
-        [SimpleIndex(TableID.MethodDef)]
-        public uint Method;
+    //    [SimpleIndex(TableID.MethodDef)]
+    //    public uint Method;
 
-        [CodedIndex(typeof(HasSemantics))]
-        public uint Association;
-    }
-    class MethodSpecTable : Table<MethodSpecRecord>
-    {
-        public MethodSpecTable()
-            : base(TableID.MethodSpec)
-        {
+    //    [CodedIndex(typeof(HasSemantics))]
+    //    public uint Association;
+    //}
+    //class MethodSpecTable : Table<MethodSpecRecord>
+    //{
+    //    public MethodSpecTable()
+    //        : base(TableID.MethodSpec)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct MethodSpecRecord
-    {
-        [CodedIndex(typeof(MethodDefOrRef))]
-        public uint Method;
+    //struct MethodSpecRecord
+    //{
+    //    [CodedIndex(typeof(MethodDefOrRef))]
+    //    public uint Method;
 
-        [BlobHeapIndex]
-        public uint Instantiation;
-    }
+    //    [BlobHeapIndex]
+    //    public uint Instantiation;
+    //}
     [Flags]
     public enum PInvokeAttributes : ushort
     {
@@ -224,27 +224,27 @@ namespace BoldAspect.CLI
         CallConvFastcall = 0x0500,
     }
 
-    class ImplMapTable : Table<ImplMapRecord>
-    {
-        public ImplMapTable()
-            : base(TableID.ImplMap)
-        {
+    //class ImplMapTable : Table<ImplMapRecord>
+    //{
+    //    public ImplMapTable()
+    //        : base(TableID.ImplMap)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct ImplMapRecord
-    {
-        [ConstantColumn(typeof(PInvokeAttributes))]
-        public PInvokeAttributes MappingFlags;
+    //struct ImplMapRecord
+    //{
+    //    [ConstantColumn(typeof(PInvokeAttributes))]
+    //    public PInvokeAttributes MappingFlags;
 
-        [CodedIndex(typeof(MemberForwarded))]
-        public uint MemberForwarded;
+    //    [CodedIndex(typeof(MemberForwarded))]
+    //    public uint MemberForwarded;
 
-        [StringHeapIndex]
-        public uint ImportName;
+    //    [StringHeapIndex]
+    //    public uint ImportName;
 
-        [SimpleIndex(TableID.ModuleRef)]
-        public uint ImportScope;
-    }
+    //    [SimpleIndex(TableID.ModuleRef)]
+    //    public uint ImportScope;
+    //}
 }

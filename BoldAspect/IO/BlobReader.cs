@@ -68,6 +68,30 @@ namespace BoldAspect
             return result;
         }
 
+        public ushort ReadUInt16()
+        {
+            ValidateIndex(2);
+            var result = (ushort)Marshal.ReadInt16(_current);
+            _current += 2;
+            return result;
+        }
+
+        public uint ReadUInt32()
+        {
+            ValidateIndex(4);
+            var result = (uint)Marshal.ReadInt32(_current);
+            _current += 4;
+            return result;
+        }
+
+        public ulong ReadUInt64()
+        {
+            ValidateIndex(8);
+            var result = (ulong)Marshal.ReadInt64(_current);
+            _current += 8;
+            return result;
+        }
+
         public byte[] ReadBytes(int count)
         {
             ValidateIndex(count);
@@ -85,7 +109,31 @@ namespace BoldAspect
 
         public uint ReadCompressedUInt32(out int offset)
         {
-            var result = _data.ReadCompressedUInt32(Index, out offset);
+            uint result = 0;
+            offset = 1;
+            var index = Index;
+            var b1 = _data[index];
+            if ((b1 & 0x80) == 0)
+            {
+                result = (uint)b1;
+            }
+            else
+            {
+                offset = 2;
+                if ((b1 & 0x40) == 0)
+                {
+                    result = ((uint)(b1 & ~0x80) << 8)
+                        | (uint)_data[index + 1];
+                }
+                else
+                {
+                    offset = 4;
+                    result = ((uint)(b1 & ~0xC0) << 24)
+                        | ((uint)_data[index + 1] << 16)
+                        | ((uint)_data[index + 2] << 8)
+                        | (uint)_data[index + 3];
+                }
+            }
             _current += offset;
             return result;
         }

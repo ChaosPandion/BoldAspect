@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace BoldAspect
 {
-    static class BinaryExtensions
+    static class Primitives
     {
         public static byte[] GetBigEndianBytes(uint value)
         {

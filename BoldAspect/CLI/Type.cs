@@ -137,138 +137,138 @@ namespace BoldAspect.CLI
         }
     }
 
-    struct TypeDefRecord
-    {
-        [ConstantColumn(typeof(TypeAttributes))]
-        public TypeAttributes Flags;
+    //struct TypeDefRecord
+    //{
+    //    [ConstantColumn(typeof(TypeAttributes))]
+    //    public TypeAttributes Flags;
 
-        [StringHeapIndex]
-        public uint TypeName;
+    //    [StringHeapIndex]
+    //    public uint TypeName;
 
-        [StringHeapIndex]
-        public uint TypeNameSpace;
+    //    [StringHeapIndex]
+    //    public uint TypeNameSpace;
 
-        [CodedIndex(typeof(TypeDefOrRef))]
-        public uint Extends;
+    //    [CodedIndex(typeof(TypeDefOrRef))]
+    //    public uint Extends;
 
-        [SimpleIndex(TableID.Field)]
-        public uint FieldList;
+    //    [SimpleIndex(TableID.Field)]
+    //    public uint FieldList;
 
-        [SimpleIndex(TableID.MethodDef)]
-        public uint MethodList;
-    }
-    class TypeRefTable : Table<TypeRefRecord>
-    {
-        public TypeRefTable()
-            : base(TableID.TypeRef)
-        {
+    //    [SimpleIndex(TableID.MethodDef)]
+    //    public uint MethodList;
+    //}
+    //class TypeRefTable : Table<TypeRefRecord>
+    //{
+    //    public TypeRefTable()
+    //        : base(TableID.TypeRef)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct TypeRefRecord
-    {
-        [CodedIndex(typeof(ResolutionScope))]
-        public uint ResolutionScope;
+    //struct TypeRefRecord
+    //{
+    //    [CodedIndex(typeof(ResolutionScope))]
+    //    public uint ResolutionScope;
 
-        [StringHeapIndex]
-        public uint TypeName;
+    //    [StringHeapIndex]
+    //    public uint TypeName;
 
-        [StringHeapIndex]
-        public uint TypeNameSpace;
-    }
-    class TypeSpecTable : Table<TypeSpecRecord>
-    {
-        public TypeSpecTable()
-            : base(TableID.TypeSpec)
-        {
+    //    [StringHeapIndex]
+    //    public uint TypeNameSpace;
+    //}
+    //class TypeSpecTable : Table<TypeSpecRecord>
+    //{
+    //    public TypeSpecTable()
+    //        : base(TableID.TypeSpec)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct TypeSpecRecord
-    {
-        [BlobHeapIndex]
-        public uint Signature;
-    }
-    class NestedClassTable : Table<NestedClassRecord>
-    {
-        public NestedClassTable()
-            : base(TableID.NestedClass)
-        {
+    //struct TypeSpecRecord
+    //{
+    //    [BlobHeapIndex]
+    //    public uint Signature;
+    //}
+    //class NestedClassTable : Table<NestedClassRecord>
+    //{
+    //    public NestedClassTable()
+    //        : base(TableID.NestedClass)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct NestedClassRecord
-    {
-        [SimpleIndex(TableID.TypeDef)]
-        public uint NestedClass;
+    //struct NestedClassRecord
+    //{
+    //    [SimpleIndex(TableID.TypeDef)]
+    //    public uint NestedClass;
 
-        [SimpleIndex(TableID.TypeDef)]
-        public uint EnclosingClass;
-    }
-    class InterfaceImplTable : Table<InterfaceImplRecord>
-    {
-        public InterfaceImplTable()
-            : base(TableID.InterfaceImpl)
-        {
+    //    [SimpleIndex(TableID.TypeDef)]
+    //    public uint EnclosingClass;
+    //}
+    //class InterfaceImplTable : Table<InterfaceImplRecord>
+    //{
+    //    public InterfaceImplTable()
+    //        : base(TableID.InterfaceImpl)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct InterfaceImplRecord
-    {
-        [SimpleIndex(TableID.TypeDef)]
-        public uint Class;
+    //struct InterfaceImplRecord
+    //{
+    //    [SimpleIndex(TableID.TypeDef)]
+    //    public uint Class;
 
-        [CodedIndex(typeof(TypeDefOrRef))]
-        public uint Interface;
-    }
-    class ClassLayoutTable : Table<ClassLayoutRecord>
-    {
-        public ClassLayoutTable()
-            : base(TableID.ClassLayout)
-        {
+    //    [CodedIndex(typeof(TypeDefOrRef))]
+    //    public uint Interface;
+    //}
+    //class ClassLayoutTable : Table<ClassLayoutRecord>
+    //{
+    //    public ClassLayoutTable()
+    //        : base(TableID.ClassLayout)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct ClassLayoutRecord
-    {
-        [ConstantColumn(typeof(ushort))]
-        public ushort PackingSize;
+    //struct ClassLayoutRecord
+    //{
+    //    [ConstantColumn(typeof(ushort))]
+    //    public ushort PackingSize;
 
-        [ConstantColumn(typeof(uint))]
-        public uint ClassSize;
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint ClassSize;
 
-        [SimpleIndex(TableID.TypeDef)]
-        public uint Parent;
-    }
-    class ExportedTypeTable : Table<ExportedTypeRecord>
-    {
-        public ExportedTypeTable()
-            : base(TableID.ExportedType)
-        {
+    //    [SimpleIndex(TableID.TypeDef)]
+    //    public uint Parent;
+    //}
+    //class ExportedTypeTable : Table<ExportedTypeRecord>
+    //{
+    //    public ExportedTypeTable()
+    //        : base(TableID.ExportedType)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct ExportedTypeRecord
-    {
-        [ConstantColumn(typeof(uint))]
-        public uint Flags;
+    //struct ExportedTypeRecord
+    //{
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint Flags;
 
-        [ConstantColumn(typeof(uint))]
-        public uint TypeDefId;
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint TypeDefId;
 
-        [StringHeapIndex]
-        public uint TypeName;
+    //    [StringHeapIndex]
+    //    public uint TypeName;
 
-        [StringHeapIndex]
-        public uint TypeNameSpace;
+    //    [StringHeapIndex]
+    //    public uint TypeNameSpace;
 
-        [CodedIndex(typeof(Implementation))]
-        public uint Implementation;
-    }
+    //    [CodedIndex(typeof(Implementation))]
+    //    public uint Implementation;
+    //}
 }

@@ -10,24 +10,24 @@ namespace BoldAspect.CLI
         ContainsNoMetadata = 0x0001
     }
 
-    class FileTable : Table<FileRecord>
-    {
-        public FileTable()
-            : base(TableID.File)
-        {
+    //class FileTable : Table<FileRecord>
+    //{
+    //    public FileTable()
+    //        : base(TableID.File)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct FileRecord
-    {
-        [ConstantColumn(typeof(uint))]
-        public uint Flags;
+    //struct FileRecord
+    //{
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint Flags;
 
-        [StringHeapIndex]
-        public uint Name;
+    //    [StringHeapIndex]
+    //    public uint Name;
 
-        [BlobHeapIndex]
-        public uint HashValue;
-    }
+    //    [BlobHeapIndex]
+    //    public uint HashValue;
+    //}
 }

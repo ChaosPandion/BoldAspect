@@ -35,6 +35,13 @@ namespace BoldAspect.CLI
 
     }
 
+    //public struct FieldRecord
+    //{
+    //    public ushort Flags;
+    //    public uint Name;
+    //    public uint Signature;
+    //}
+
     public interface IField
     {
         FieldAttributes Flags { get; set; }
@@ -42,6 +49,7 @@ namespace BoldAspect.CLI
         ITypeRef DeclaringType { get; set; }
         FieldSignature Signature { get; set; }
         IModule DeclaringModule { get; set; }
+        int FieldOffset { get; set; }
     }
 
     public sealed class CLIField : IField
@@ -51,6 +59,7 @@ namespace BoldAspect.CLI
         public ITypeRef DeclaringType { get; set; }
         public FieldSignature Signature { get; set; }
         public IModule DeclaringModule { get; set; }
+        public int FieldOffset { get; set; }
 
         public override string ToString()
         {
@@ -58,57 +67,57 @@ namespace BoldAspect.CLI
         }
     }
 
-    class FieldLayoutTable : Table<FieldLayoutRecord>
-    {
-        public FieldLayoutTable()
-            : base(TableID.FieldLayout)
-        {
+    //class FieldLayoutTable : Table<FieldLayoutRecord>
+    //{
+    //    public FieldLayoutTable()
+    //        : base(TableID.FieldLayout)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct FieldLayoutRecord
-    {
-        [ConstantColumn(typeof(uint))]
-        public uint Offset;
+    //struct FieldLayoutRecord
+    //{
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint Offset;
 
-        [SimpleIndex(TableID.Field)]
-        public uint Field;
-    }
+    //    [SimpleIndex(TableID.Field)]
+    //    public uint Field;
+    //}
 
-    class FieldMarshalTable : Table<FieldMarshalRecord>
-    {
-        public FieldMarshalTable()
-            : base(TableID.FieldMarshal)
-        {
+    //class FieldMarshalTable : Table<FieldMarshalRecord>
+    //{
+    //    public FieldMarshalTable()
+    //        : base(TableID.FieldMarshal)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct FieldMarshalRecord
-    {
-        [CodedIndex(typeof(HasFieldMarshal))]
-        public uint Parent;
+    //struct FieldMarshalRecord
+    //{
+    //    [CodedIndex(typeof(HasFieldMarshal))]
+    //    public uint Parent;
 
-        [BlobHeapIndex]
-        public uint NativeType;
-    }
+    //    [BlobHeapIndex]
+    //    public uint NativeType;
+    //}
 
-    class FieldRVATable : Table<FieldRVARecord>
-    {
-        public FieldRVATable()
-            : base(TableID.FieldRVA)
-        {
+    //class FieldRVATable : Table<FieldRVARecord>
+    //{
+    //    public FieldRVATable()
+    //        : base(TableID.FieldRVA)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct FieldRVARecord
-    {
-        [ConstantColumn(typeof(uint))]
-        public uint RVA;
+    //struct FieldRVARecord
+    //{
+    //    [ConstantColumn(typeof(uint))]
+    //    public uint RVA;
 
-        [SimpleIndex(TableID.Field)]
-        public uint Field;
-    }
+    //    [SimpleIndex(TableID.Field)]
+    //    public uint Field;
+    //}
 }

@@ -3,18 +3,18 @@ using System.IO;
 
 namespace BoldAspect.CLI
 {
-    class StandAloneSigTable : Table<StandAloneSigRecord>
-    {
-        public StandAloneSigTable()
-            : base(TableID.StandAloneSig)
-        {
+    //class StandAloneSigTable : Table<StandAloneSigRecord>
+    //{
+    //    public StandAloneSigTable()
+    //        : base(TableID.StandAloneSig)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
-    struct StandAloneSigRecord
-    {
-        [BlobHeapIndex]
-        public uint Signature;
-    }
+    //struct StandAloneSigRecord
+    //{
+    //    [BlobHeapIndex]
+    //    public uint Signature;
+    //}
 }
