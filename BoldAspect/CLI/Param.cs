@@ -8,6 +8,7 @@ namespace BoldAspect.CLI
     [Flags]
     public enum ParamAttributes : ushort
     {
+        None = 0,
         In = 0x0001,
         Out = 0x0002,
         Optional = 0x0010,

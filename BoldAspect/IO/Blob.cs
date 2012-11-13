@@ -14,10 +14,6 @@ namespace BoldAspect
 
         public Blob(byte[] data, int offset, int length)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
-            if (offset < 0 || offset >= data.Length || length < 0 || offset + length >= data.Length)
-                throw new ArgumentException("The supplied offset and length are not within range.");
             _data = data;
             _offset = offset;
             _length = length;

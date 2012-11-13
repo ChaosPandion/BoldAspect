@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoldAspect.CLI.CodedIndexes;
 
 namespace BoldAspect.CLI
 {
@@ -40,12 +42,16 @@ namespace BoldAspect.CLI
         }
 
         public MetadataToken Token { get; set; }
-        public MetadataToken ResolutionScope { get; set; }
+        public MetadataToken ResolutionScope { get; set; } 
         public string Name { get; set; }
         public string Namespace { get; set; }
 
         public override string ToString()
         {
+            if (string.IsNullOrEmpty(Namespace))
+                return Name ?? "";
+            if (string.IsNullOrEmpty(Name))
+                return "";
             return string.Format("{0}.{1}", Namespace, Name);
         }
     }
@@ -63,12 +69,14 @@ namespace BoldAspect.CLI
         public TypeAttributes Flags { get; set; }
         public string Name { get; set; }
         public string Namespace { get; set; }
-        public MetadataToken ExtendsToken { get; set; }
-        public MetadataToken FieldListToken { get; set; }
-        public MetadataToken MethodListToken { get; set; }
+
 
         public override string ToString()
         {
+            if (string.IsNullOrEmpty(Namespace))
+                return Name ?? "";
+            if (string.IsNullOrEmpty(Name))
+                return "";
             return string.Format("{0}.{1}", Namespace, Name);
         }
     }
@@ -82,8 +90,14 @@ namespace BoldAspect.CLI
             _metadata = metadata;
         }
 
+        public MetadataToken Token { get; set; }
         public FieldAttributes Flags { get; set; }
         public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name ?? "";
+        }
     }
 
     public sealed class CLIMethodDef
@@ -93,6 +107,16 @@ namespace BoldAspect.CLI
         internal CLIMethodDef(CLIMetadata metadata)
         {
             _metadata = metadata;
+        }
+
+        public MetadataToken Token { get; set; }
+        public MethodImplAttributes ImplFlags { get; set; }
+        public MethodAttributes Flags { get; set; }
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name ?? "";
         }
     }
 
@@ -104,6 +128,15 @@ namespace BoldAspect.CLI
         {
             _metadata = metadata;
         }
+
+        public MetadataToken Token { get; set; }
+        public ParamAttributes Flags { get; set; }
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name ?? "";
+        }
     }
 
     public sealed class CLIInterfaceImpl
@@ -114,6 +147,10 @@ namespace BoldAspect.CLI
         {
             _metadata = metadata;
         }
+
+        public MetadataToken Token { get; set; }
+        public MetadataToken Class { get; set; }
+        public MetadataToken Interface { get; set; }
     }
 
     public sealed class CLIMemberRef
@@ -123,6 +160,15 @@ namespace BoldAspect.CLI
         internal CLIMemberRef(CLIMetadata metadata)
         {
             _metadata = metadata;
+        }
+
+        public MetadataToken Token { get; set; }
+        public MetadataToken Class { get; set; }
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name ?? "";
         }
     }
 
@@ -134,6 +180,11 @@ namespace BoldAspect.CLI
         {
             _metadata = metadata;
         }
+
+        public MetadataToken Token { get; set; }
+        public ElementType Type { get; set; }
+        public MetadataToken Parent { get; set; }
+        public Blob Value { get; set; }
     }
 
     public sealed class CLICustomAttribute
@@ -144,6 +195,11 @@ namespace BoldAspect.CLI
         {
             _metadata = metadata;
         }
+
+        public MetadataToken Token { get; set; }
+        public MetadataToken Parent { get; set; }
+        public MetadataToken Type { get; set; }
+        public Blob Value { get; set; }
     }
 
     public sealed class CLIFieldMarshal
@@ -306,51 +362,11 @@ namespace BoldAspect.CLI
         }
     }
 
-    public sealed class CLIAssemblyProcessor
-    {
-        private readonly CLIMetadata _metadata;
-
-        internal CLIAssemblyProcessor(CLIMetadata metadata)
-        {
-            _metadata = metadata;
-        }
-    }
-
-    public sealed class CLIAssemblyOS
-    {
-        private readonly CLIMetadata _metadata;
-
-        internal CLIAssemblyOS(CLIMetadata metadata)
-        {
-            _metadata = metadata;
-        }
-    }
-
     public sealed class CLIAssemblyRef
     {
         private readonly CLIMetadata _metadata;
 
         internal CLIAssemblyRef(CLIMetadata metadata)
-        {
-            _metadata = metadata;
-        }
-    }
-
-    public sealed class CLIAssemblyRefProcessor
-    {
-        private readonly CLIMetadata _metadata;
-
-        internal CLIAssemblyRefProcessor(CLIMetadata metadata)
-        {
-            _metadata = metadata;
-        }
-    }
-
-    public sealed class CLIAssemblyRefOS
-    {
-        private readonly CLIMetadata _metadata;
-
-        internal CLIAssemblyRefOS(CLIMetadata metadata)
         {
             _metadata = metadata;
         }
@@ -434,10 +450,10 @@ namespace BoldAspect.CLI
         internal readonly List<CLIField> FieldList = new List<CLIField>();
         internal readonly List<CLIMethodDef> MethodDefList = new List<CLIMethodDef>();
         internal readonly List<CLIParam> ParamList = new List<CLIParam>();
-        internal readonly List<CLIInterfaceImpl> InterfaceImplList = new List<CLIInterfaceImpl>();
+        internal readonly ConcurrentDictionary<MetadataToken, ConcurrentBag<CLIInterfaceImpl>> InterfaceImplList = new ConcurrentDictionary<MetadataToken, ConcurrentBag<CLIInterfaceImpl>>();
         internal readonly List<CLIMemberRef> MemberRefList = new List<CLIMemberRef>();
-        internal readonly List<CLIConstant> ConstantList = new List<CLIConstant>();
-        internal readonly List<CLICustomAttribute> CustomAttributeList = new List<CLICustomAttribute>();
+        internal readonly ConcurrentDictionary<MetadataToken, ConcurrentBag<CLIConstant>> ConstantList = new ConcurrentDictionary<MetadataToken, ConcurrentBag<CLIConstant>>();
+        internal readonly ConcurrentDictionary<MetadataToken, ConcurrentBag<CLICustomAttribute>> CustomAttributeList = new ConcurrentDictionary<MetadataToken, ConcurrentBag<CLICustomAttribute>>();
         internal readonly List<CLIFieldMarshal> FieldMarshalList = new List<CLIFieldMarshal>();
         internal readonly List<CLIDeclSecurity> DeclSecurityList = new List<CLIDeclSecurity>();
         internal readonly List<CLIClassLayout> ClassLayoutList = new List<CLIClassLayout>();
@@ -465,6 +481,44 @@ namespace BoldAspect.CLI
 
         internal CLIMetadata(PortableExecutable pe)
         {
+            ReadModuleList(pe);
+            ReadTypeRefList(pe);
+            ReadTypeDefList(pe);
+            ReadFieldList(pe);
+            ReadMethodDefList(pe);
+            ReadParamList(pe);
+            ReadInterfaceImplList(pe);
+            ReadMemberRefList(pe);
+            ReadConstantList(pe);
+            ReadCustomAttributeList(pe);
+            ReadFieldMarshalList(pe);
+            ReadDeclSecurityList(pe);
+            ReadClassLayoutList(pe);
+            ReadFieldLayoutList(pe);
+            ReadStandAloneSigList(pe);
+            ReadEventMapList(pe);
+            ReadEventList(pe);
+            ReadPropertyMapList(pe);
+            ReadPropertyList(pe);
+            ReadMethodSemanticsList(pe);
+            ReadMethodImplList(pe);
+            ReadModuleRefList(pe);
+            ReadTypeSpecList(pe);
+            ReadImplMapList(pe);
+            ReadFieldRVAList(pe);
+            ReadAssemblyList(pe);
+            ReadAssemblyRefList(pe);
+            ReadFileList(pe);
+            ReadExportedTypeList(pe);
+            ReadManifestResourceList(pe);
+            ReadNestedClassList(pe);
+            ReadGenericParamList(pe);
+            ReadMethodSpecList(pe);
+            ReadGenericParamConstraintList(pe);
+        }
+
+        void ReadModuleList(PortableExecutable pe)
+        {
             uint index = 0;
             foreach (var record in pe.MetadataRoot.GetTable<ModuleTable>(TableID.Module))
             {
@@ -475,20 +529,26 @@ namespace BoldAspect.CLI
                 item.Guid = pe.MetadataRoot.GetGuid(record.Mvid);
                 ModuleList.Add(item);
             }
+        }
 
-            index = 0;
+        void ReadTypeRefList(PortableExecutable pe)
+        {
+            uint index = 0;
             foreach (var record in pe.MetadataRoot.GetTable<TypeRefTable>(TableID.TypeRef))
             {
                 index++;
                 var item = new CLITypeRef(this);
                 item.Token = new MetadataToken(TableID.TypeRef, index);
-                item.ResolutionScope = new MetadataToken((TableID)Enum.Parse(typeof(TableID), ((ResolutionScope)(record.ResolutionScope & 0x3)).ToString()), record.ResolutionScope >> 2);
+                item.ResolutionScope = CodedIndex.ResolutionScope.Decode(record.ResolutionScope);
                 item.Name = pe.MetadataRoot.GetString(record.TypeName);
                 item.Namespace = pe.MetadataRoot.GetString(record.TypeNamespace);
                 TypeRefList.Add(item);
             }
+        }
 
-            index = 0;
+        void ReadTypeDefList(PortableExecutable pe)
+        {
+            uint index = 0;
             foreach (var record in pe.MetadataRoot.GetTable<TypeDefTable>(TableID.TypeDef))
             {
                 index++;
@@ -497,11 +557,266 @@ namespace BoldAspect.CLI
                 item.Flags = (TypeAttributes)record.Flags;
                 item.Name = pe.MetadataRoot.GetString(record.TypeName);
                 item.Namespace = pe.MetadataRoot.GetString(record.TypeNamespace);
-                item.ExtendsToken = new MetadataToken((TableID)Enum.Parse(typeof(TableID), ((TypeDefOrRef)(record.Extends & 0x3)).ToString()), record.Extends >> 2);
-                item.FieldListToken = new MetadataToken(TableID.Field, record.FieldList);
-                item.MethodListToken = new MetadataToken(TableID.MethodDef, record.MethodList);
                 TypeDefList.Add(item);
             }
+        }
+
+        void ReadFieldList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<FieldTable>(TableID.Field))
+            {
+                index++;
+                var item = new CLIField(this);
+                item.Token = new MetadataToken(TableID.Field, index);
+                item.Flags = (FieldAttributes)record.Flags;
+                item.Name = pe.MetadataRoot.GetString(record.Name);
+                FieldList.Add(item);
+            }
+        }
+
+        void ReadMethodDefList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<MethodDefTable>(TableID.MethodDef))
+            {
+                index++;
+                var item = new CLIMethodDef(this);
+                item.Token = new MetadataToken(TableID.MethodDef, index);
+                item.ImplFlags = (MethodImplAttributes)record.ImplFlags;
+                item.Flags = (MethodAttributes)record.Flags;
+                item.Name = pe.MetadataRoot.GetString(record.Name);
+                MethodDefList.Add(item);
+            }
+        }
+
+        void ReadParamList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<ParamTable>(TableID.Param))
+            {
+                index++;
+                var item = new CLIParam(this);
+                item.Token = new MetadataToken(TableID.Param, index);
+                item.Flags = (ParamAttributes)record.Flags;
+                item.Name = pe.MetadataRoot.GetString(record.Name);
+                ParamList.Add(item);
+            }
+        }
+
+        void ReadInterfaceImplList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<InterfaceImplTable>(TableID.InterfaceImpl))
+            {
+                index++;
+                var item = new CLIInterfaceImpl(this);
+                item.Token = new MetadataToken(TableID.InterfaceImpl, index);
+                item.Class = new MetadataToken(TableID.TypeDef, record.Class);
+                item.Interface = CodedIndex.TypeDefOrRef.Decode(record.Interface);
+                InterfaceImplList.AddOrUpdate(
+                    item.Class,
+                    token => {
+                        var bag = new ConcurrentBag<CLIInterfaceImpl>();
+                        bag.Add(item);
+                        return bag;
+                    },
+                    (token, bag) => {
+                        bag.Add(item);
+                        return bag;
+                    }
+                );
+            }
+        }
+
+        void ReadMemberRefList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<MemberRefTable>(TableID.MemberRef))
+            {
+                index++;
+                var item = new CLIMemberRef(this);
+                item.Token = new MetadataToken(TableID.MemberRef, index);
+                item.Class = CodedIndex.MemberRefParent.Decode(record.Class);
+                item.Name = pe.MetadataRoot.GetString(record.Name);
+                MemberRefList.Add(item);
+            }
+        }
+
+        void ReadConstantList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<ConstantTable>(TableID.Constant))
+            {
+                index++;
+                var item = new CLIConstant(this);
+                item.Token = new MetadataToken(TableID.Constant, index);
+                item.Type = (ElementType)record.Type;
+                item.Parent = CodedIndex.HasConstant.Decode(record.Parent);
+                item.Value = pe.MetadataRoot.GetBlob(record.Value);
+                ConstantList.AddOrUpdate(
+                    item.Parent,
+                    token =>
+                    {
+                        var bag = new ConcurrentBag<CLIConstant>();
+                        bag.Add(item);
+                        return bag;
+                    },
+                    (token, bag) =>
+                    {
+                        bag.Add(item);
+                        return bag;
+                    }
+                );
+            }
+        }
+
+        void ReadCustomAttributeList(PortableExecutable pe)
+        {
+            uint index = 0;
+            foreach (var record in pe.MetadataRoot.GetTable<CustomAttributeTable>(TableID.CustomAttribute))
+            {
+                index++;
+                var item = new CLICustomAttribute(this);
+                item.Token = new MetadataToken(TableID.CustomAttribute, index);
+                item.Parent = CodedIndex.HasCustomAttribute.Decode(record.Parent);
+                item.Type = CodedIndex.CustomAttributeType.Decode(record.Type);
+                item.Value = pe.MetadataRoot.GetBlob(record.Value);
+                CustomAttributeList.AddOrUpdate(
+                    item.Parent,
+                    token =>
+                    {
+                        var bag = new ConcurrentBag<CLICustomAttribute>();
+                        bag.Add(item);
+                        return bag;
+                    },
+                    (token, bag) =>
+                    {
+                        bag.Add(item);
+                        return bag;
+                    }
+                );
+            }
+        }
+
+        void ReadFieldMarshalList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadDeclSecurityList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadClassLayoutList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadFieldLayoutList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadStandAloneSigList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadEventMapList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadEventList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadPropertyMapList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadPropertyList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadMethodSemanticsList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadMethodImplList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadModuleRefList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadTypeSpecList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadImplMapList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadFieldRVAList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadAssemblyList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadAssemblyRefList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadFileList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadExportedTypeList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadManifestResourceList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadNestedClassList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadGenericParamList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadMethodSpecList(PortableExecutable pe)
+        {
+
+        }
+
+        void ReadGenericParamConstraintList(PortableExecutable pe)
+        {
+
         }
     }
 }

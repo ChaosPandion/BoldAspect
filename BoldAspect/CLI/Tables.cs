@@ -493,6 +493,8 @@ namespace BoldAspect.CLI
 
         }
 
+
+
         protected override InterfaceImplRecord Read(BlobReader reader)
         {
             var record = new InterfaceImplRecord();

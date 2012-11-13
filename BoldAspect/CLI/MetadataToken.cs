@@ -2,7 +2,7 @@
 
 namespace BoldAspect.CLI
 {
-    public struct MetadataToken : IEquatable<MetadataToken>, IComparable<MetadataToken>, IComparable
+    public partial struct MetadataToken : IEquatable<MetadataToken>, IComparable<MetadataToken>, IComparable
     {
         private readonly uint Value;
 
@@ -11,29 +11,29 @@ namespace BoldAspect.CLI
             Value = value;
         }
 
-        public MetadataToken(TableID table, uint key)
+        public MetadataToken(TableID table, uint value)
         {
-            Value = ((uint)table << 24) | key;
+            Value = ((uint)table << 24) | value;
         }
 
-        internal TableID Table
+        public TableID Table
         {
             get { return (TableID)((Value & 0xFF000000) >> 24); }
         }
 
-        internal uint Key
+        public uint Key
         {
             get { return (Value & 0x00FFFFFF); }
         }
 
+        public bool IsNull
+        {
+            get { return Key == 0; }
+        }
+
         public override string ToString()
         {
-            return string.Format(
-                Key > 0 
-                    ? "{0}(0x{1:X8})"
-                    : "{0}(null)", 
-                Table,
-                Key);
+            return IsNull ? "null" : string.Format("{0}(0x{1:X8})", Table, Key);
         }
 
         public override int GetHashCode()
