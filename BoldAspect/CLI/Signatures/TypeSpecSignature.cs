@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI
+namespace BoldAspect.CLI.Signatures
 {
-    enum MemberForwarded : byte
+    class TypeSpecSignature
     {
-        Field,
-        MethodDef
     }
 }

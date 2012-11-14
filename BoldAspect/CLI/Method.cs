@@ -71,25 +71,7 @@ namespace BoldAspect.CLI
     }
 
 
-    [Flags]
-    public enum CallingConventions : byte
-    {        
-        Default = 0x00,
-        //Unmanaged_cdecl = 0x01,
-        //Unmanaged_sdtcall = 0x02,
-        //Unmanaged_thiscall = 0x03,
-        //Unmanaged_fastcall = 0x04,
-        VarArg = 0x05,
-        //Field = 0x06,
-        //LocalVar = 0x07,
-        //Property = 0x08,
-        //Unmanaged = 0x09,
-        //Mask = 0x0f,
-        Generic = 0x10,
-        HasThis = 0x20,
-        ExplicitThis = 0x40,
-        //Sentinel = 0x41,
-    }
+
 
     //public sealed class MethodCollection : Collection<IMethod>
     //{

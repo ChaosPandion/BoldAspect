@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoldAspect.CLI.CodedIndexes;
+using BoldAspect.CLI.Signatures;
 
 namespace BoldAspect.CLI
 {
@@ -93,6 +94,7 @@ namespace BoldAspect.CLI
         public MetadataToken Token { get; set; }
         public FieldAttributes Flags { get; set; }
         public string Name { get; set; }
+        public FieldSignature Signature { get; set; }
 
         public override string ToString()
         {
@@ -113,10 +115,13 @@ namespace BoldAspect.CLI
         public MethodImplAttributes ImplFlags { get; set; }
         public MethodAttributes Flags { get; set; }
         public string Name { get; set; }
+        public MethodSignature Signature { get; set; }
 
         public override string ToString()
         {
-            return Name ?? "";
+            if (Signature == null)
+                return Name ?? "";
+            return string.Format("{0} {1}()", Signature.ReturnType.Type, Name);
         }
     }
 
@@ -571,6 +576,7 @@ namespace BoldAspect.CLI
                 item.Token = new MetadataToken(TableID.Field, index);
                 item.Flags = (FieldAttributes)record.Flags;
                 item.Name = pe.MetadataRoot.GetString(record.Name);
+                item.Signature = Signature.ParseFieldSignature(pe.MetadataRoot.GetBlob(record.Signature));
                 FieldList.Add(item);
             }
         }
@@ -586,6 +592,7 @@ namespace BoldAspect.CLI
                 item.ImplFlags = (MethodImplAttributes)record.ImplFlags;
                 item.Flags = (MethodAttributes)record.Flags;
                 item.Name = pe.MetadataRoot.GetString(record.Name);
+                item.Signature = Signature.ParseMethodSignature(pe.MetadataRoot.GetBlob(record.Signature));
                 MethodDefList.Add(item);
             }
         }

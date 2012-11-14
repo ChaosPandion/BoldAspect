@@ -12,9 +12,11 @@ namespace BoldAspect.CLI
     /// </summary>
     public sealed class PortableExecutable
     {
+        public const uint SignatureConstant = 0x4550;
+        
         readonly byte[] _data;
         readonly DosHeader _dosHeader;
-        readonly Signature _signature;
+        readonly uint _signature;
         readonly FileHeader _fileHeader;
         readonly ImageType _imageType;
         readonly OptionalHeader32 _optionalHeader32;

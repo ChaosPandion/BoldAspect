@@ -77,7 +77,7 @@ namespace BoldAspect.CLI
                 }
                 return (T)Convert.ChangeType(Read<uint>(), typeof(T));
             }
-            var ci = col as CodedIndex;
+            var ci = col as CodedIndex2;
             if (ci != null)
             {
                 uint token = 0;

@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoldAspect.CLI
 {
-    enum HasDeclSecurity : byte
+    public sealed class LocalVariableSignature
     {
-        TypeDef,
-        MethodDef,
-        Assembly
+        
     }
 }

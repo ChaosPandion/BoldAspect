@@ -273,10 +273,14 @@ namespace BoldAspect
 
         public T? TryRead<T>() where T : struct
         {
-            var size = Marshal.SizeOf(typeof(T));
+            var type = typeof(T);
+            if (type.IsEnum)
+                type = Enum.GetUnderlyingType(type);
+            var size = Marshal.SizeOf(type);
             if (!CanRead(size))
                 return null;
-            return (T)Marshal.PtrToStructure(_current, typeof(T));
+            _current += size;
+            return (T)Marshal.PtrToStructure(_current, type);
         }
 
         public void Dispose()

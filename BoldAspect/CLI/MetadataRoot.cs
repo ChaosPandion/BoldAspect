@@ -185,7 +185,7 @@ namespace BoldAspect.CLI
                             }
                             break;
                         default:
-                            throw new MetadataException();
+                            throw new Exception();
                     }
                 }
             }

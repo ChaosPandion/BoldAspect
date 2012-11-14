@@ -30,14 +30,14 @@ namespace BoldAspect.CLI
         }
     }
 
-    public sealed class CodedIndex
+    public sealed class CodedIndex2
     {
         public Type EnumType;
         public int TagWidth;
         public int ByteWidth;
         public TableID[] Tables;
 
-        public CodedIndex(Type enumType, TableID[] tables)
+        public CodedIndex2(Type enumType, TableID[] tables)
         {
             EnumType = enumType;
             var y = (double)Enum.GetValues(enumType).Cast<object>().Select(o => Convert.ToUInt64(o)).Max();
