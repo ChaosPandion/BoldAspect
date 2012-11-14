@@ -70,6 +70,7 @@ namespace BoldAspect.CLI
         public TypeAttributes Flags { get; set; }
         public string Name { get; set; }
         public string Namespace { get; set; }
+        public CLITypeDef EnclosingType { get; set; }
 
 
         public override string ToString()
@@ -807,8 +808,11 @@ namespace BoldAspect.CLI
         }
 
         void ReadNestedClassList(PortableExecutable pe)
-        {
+        {            
+            foreach (var record in pe.MetadataRoot.GetTable<NestedClassTable>(TableID.NestedClass))
+            {
 
+            }
         }
 
         void ReadGenericParamList(PortableExecutable pe)
