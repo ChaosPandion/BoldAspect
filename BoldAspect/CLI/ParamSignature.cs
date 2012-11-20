@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Signatures
+namespace BoldAspect.CLI
 {
-    public sealed class ReturnTypeSignature
+    public sealed class ParamSignature
     {
         public CustomModSignature FirstMod { get; set; }
         public TypeSignature Type { get; set; }
+        public ParamSignature Next { get; set; }
     }
 }

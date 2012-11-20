@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using BoldAspect.CLI.CodedIndexes;
+using BoldAspect.CLI;
 
 namespace BoldAspect.CLI
 {
@@ -229,11 +229,6 @@ namespace BoldAspect.CLI
         public T GetTable<T>(TableID table) where T : ITable
         {
             return (T)_tables[table];
-        }
-
-        public TableReader CreateTableReader(TableID table)
-        {
-            return new TableReader(this, table);
         }
 
 

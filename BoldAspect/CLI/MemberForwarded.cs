@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace BoldAspect.CLI.CodedIndexes
+namespace BoldAspect.CLI
 {
-    public sealed class HasFieldMarshalCodedIndex : CodedIndex
+    public sealed class MemberForwardedCodedIndex : CodedIndex
     {
-        public HasFieldMarshalCodedIndex()
-            : base(1, TableID.Field, TableID.Param)
+        public MemberForwardedCodedIndex()
+            : base(1, TableID.Field, TableID.MethodDef)
         {
 
         }
@@ -17,8 +17,8 @@ namespace BoldAspect.CLI.CodedIndexes
             {
                 case Value.Field:
                     return new MetadataToken(TableID.Field, key);
-                case Value.Param:
-                    return new MetadataToken(TableID.Param, key);
+                case Value.MethodDef:
+                    return new MetadataToken(TableID.MethodDef, key);
                 default:
                     throw new Exception();
             }
@@ -42,7 +42,7 @@ namespace BoldAspect.CLI.CodedIndexes
         public enum Value : byte
         {
             Field,
-            Param
+            MethodDef
         }
     }
 }

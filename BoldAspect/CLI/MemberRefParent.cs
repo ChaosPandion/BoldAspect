@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace BoldAspect.CLI.CodedIndexes
+namespace BoldAspect.CLI
 {
-    public sealed class MethodDefOrRefCodedIndex : CodedIndex
+    public sealed class MemberRefParentCodedIndex : CodedIndex
     {
-        public MethodDefOrRefCodedIndex()
-            : base(1, TableID.MethodDef, TableID.MemberRef)
+        public MemberRefParentCodedIndex()
+            : base(3, TableID.TypeDef, TableID.TypeRef, TableID.ModuleRef, TableID.MethodDef, TableID.TypeSpec)
         {
 
         }
@@ -15,10 +15,16 @@ namespace BoldAspect.CLI.CodedIndexes
             var key = codedIndex >> Width;
             switch ((Value)(codedIndex & Mask))
             {
+                case Value.TypeDef:
+                    return new MetadataToken(TableID.TypeDef, key);
+                case Value.TypeRef:
+                    return new MetadataToken(TableID.TypeRef, key);
+                case Value.ModuleRef:
+                    return new MetadataToken(TableID.ModuleRef, key);
                 case Value.MethodDef:
                     return new MetadataToken(TableID.MethodDef, key);
-                case Value.MemberRef:
-                    return new MetadataToken(TableID.MemberRef, key);
+                case Value.TypeSpec:
+                    return new MetadataToken(TableID.TypeSpec, key);
                 default:
                     throw new Exception();
             }
@@ -41,8 +47,11 @@ namespace BoldAspect.CLI.CodedIndexes
 
         public enum Value : byte
         {
+            TypeDef,
+            TypeRef,
+            ModuleRef,
             MethodDef,
-            MemberRef
+            TypeSpec,
         }
     }
 }

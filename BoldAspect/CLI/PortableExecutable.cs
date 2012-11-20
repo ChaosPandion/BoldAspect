@@ -59,7 +59,7 @@ namespace BoldAspect.CLI
                 }
                 br.Read(ref _sectionHeaders, _fileHeader.SectionCount);
 
-                if (_dataDirectories[(int)DataDirectoryType.CliHeader].Exists)
+                if (_dataDirectories[(int)DataDirectoryType.CliHeader].RVA > 0)
                 {
                     var cliHeaderOffset = FindDataDirectoryOffset(DataDirectoryType.CliHeader);
                     br.Seek(cliHeaderOffset);
@@ -70,7 +70,7 @@ namespace BoldAspect.CLI
                 }
 
                 var resourceHeader = _dataDirectories[(int)DataDirectoryType.Resource];
-                if (resourceHeader.Exists)
+                if (resourceHeader.RVA > 0)
                 {
                     var offset = FindDataDirectoryOffset(DataDirectoryType.Resource);
                     br.Seek(offset);

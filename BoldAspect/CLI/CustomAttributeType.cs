@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BoldAspect.CLI.CodedIndexes
+namespace BoldAspect.CLI
 {
     public sealed class CustomAttributeTypeCodedIndex : CodedIndex
     {

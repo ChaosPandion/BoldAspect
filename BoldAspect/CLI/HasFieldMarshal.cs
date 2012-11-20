@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace BoldAspect.CLI.CodedIndexes
+namespace BoldAspect.CLI
 {
-    public sealed class HasDeclSecurityCodedIndex : CodedIndex
+    public sealed class HasFieldMarshalCodedIndex : CodedIndex
     {
-        public HasDeclSecurityCodedIndex()
-            : base(2, TableID.TypeDef, TableID.MethodDef, TableID.Assembly)
+        public HasFieldMarshalCodedIndex()
+            : base(1, TableID.Field, TableID.Param)
         {
 
         }
@@ -15,12 +15,10 @@ namespace BoldAspect.CLI.CodedIndexes
             var key = codedIndex >> Width;
             switch ((Value)(codedIndex & Mask))
             {
-                case Value.TypeDef:
-                    return new MetadataToken(TableID.TypeDef, key);
-                case Value.MethodDef:
-                    return new MetadataToken(TableID.MethodDef, key);
-                case Value.Assembly:
-                    return new MetadataToken(TableID.Assembly, key);
+                case Value.Field:
+                    return new MetadataToken(TableID.Field, key);
+                case Value.Param:
+                    return new MetadataToken(TableID.Param, key);
                 default:
                     throw new Exception();
             }
@@ -43,9 +41,8 @@ namespace BoldAspect.CLI.CodedIndexes
 
         public enum Value : byte
         {
-            TypeDef,
-            MethodDef,
-            Assembly
+            Field,
+            Param
         }
     }
 }

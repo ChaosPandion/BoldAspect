@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoldAspect.CLI.Signatures
+namespace BoldAspect.CLI.CIL
 {
-    class TypeSpecSignature
+    class CILWriter
     {
     }
 }

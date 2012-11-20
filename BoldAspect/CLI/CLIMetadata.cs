@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BoldAspect.CLI.CodedIndexes;
-using BoldAspect.CLI.Signatures;
+using BoldAspect.CLI;
+using BoldAspect.CLI;
 
 namespace BoldAspect.CLI
 {
@@ -24,7 +24,7 @@ namespace BoldAspect.CLI
 
         public override string ToString()
         {
-            return string.Format("{0}({1})", Name, Guid);
+            return string.Format("{0}", Name);
         }
 
         public static CLIModule Load(string fileName)
